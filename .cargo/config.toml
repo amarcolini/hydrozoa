@@ -1,0 +1,15 @@
+[build]
+target = "./armv7a-vex-v5.json"
+
+[target.wasm32-unknown-unknown]
+rustflags = ["-Clink-arg=--export-memory", "-Clink-arg=--import-table"]
+
+[unstable]
+build-std = ["core", "compiler_builtins", "alloc"]
+build-std-features = ["compiler-builtins-mem"]
+
+[env]
+WAMR_LLVM_TARGET = "armv7a-vex-v5"
+WAMR_BUILD_TARGET = "ARMV7"
+BINDGEN_EXTRA_CLANG_ARGS_armv7a_vex_v5 = "-I../../sysroot/include --sysroot=../../sysroot --target=armv7a-none-eabi"
+CC_armv7a_vex_v5 = "arm-none-eabi-gcc"

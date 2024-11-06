@@ -1,0 +1,9 @@
+[package]
+name = "vexide_wasm_startup"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bitflags = { version = "2.6.0", default-features = false }
+vexide.workspace = true
+vex-sdk.workspace = true

@@ -1,0 +1,20 @@
+[package]
+name = "runtime"
+version = "0.1.0"
+edition = "2021"
+
+# These fields configure default behavior for uploads with `cargo v5`.
+[package.metadata.v5]
+slot = 1
+icon = "cool-x"
+compress = true
+
+[dependencies]
+vexide.workspace = true
+vex-sdk.workspace = true
+vexide_wasm_startup = { version = "0.1.0", path = "../startup" }
+wasm3 = { path = "../../wasm3-rs", features = [
+    "build-bindgen",
+], default-features = false }
+hashbrown = "0.15.1"
+printf-compat = { version = "0.1.1", default-features = false }
