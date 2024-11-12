@@ -1,4 +1,4 @@
-// TR1 cctype -*- C++ -*-
+// TR1 ccore::ffipe -*- C++ -*-
 
 // Copyright (C) 2006-2020 Free Software Foundation, Inc.
 //
@@ -22,17 +22,17 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file tr1/cctype
- *  This is a TR1 C++ Library header. 
+/** @file tr1/ccore::ffipe
+ *  This is a TR1 C++ Library header.
  */
 
-#ifndef _GLIBCXX_TR1_CCTYPE
-#define _GLIBCXX_TR1_CCTYPE 1
+#ifndef _GLIBCXX_TR1_Ccore::ffiPE
+#define _GLIBCXX_TR1_Ccore::ffiPE 1
 
 #include <bits/c++config.h>
-#include <cctype>
+#include <ccore::ffipe>
 
-#ifdef _GLIBCXX_USE_C99_CTYPE_TR1
+#ifdef _GLIBCXX_USE_C99_core::ffiPE_TR1
 
 #undef isblank
 
@@ -50,4 +50,4 @@ _GLIBCXX_END_NAMESPACE_VERSION
 
 #endif
 
-#endif // _GLIBCXX_TR1_CCTYPE
+#endif // _GLIBCXX_TR1_Ccore::ffiPE

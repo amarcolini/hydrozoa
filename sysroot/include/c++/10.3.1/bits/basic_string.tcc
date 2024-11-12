@@ -726,7 +726,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {
       if (__n)
 	{
-	  _M_check_length(size_type(0), __n, "basic_string::append");	  
+	  _M_check_length(size_type(0), __n, "basic_string::append");
 	  const size_type __len = __n + this->size();
 	  if (__len > this->capacity() || _M_rep()->_M_is_shared())
 	    this->reserve(__len);
@@ -778,7 +778,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  _M_rep()->_M_set_length_and_sharable(__len);
 	}
       return *this;
-    }    
+    }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
     basic_string<_CharT, _Traits, _Alloc>&
@@ -793,7 +793,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  if (__len > this->capacity() || _M_rep()->_M_is_shared())
 	    this->reserve(__len);
 	  _M_copy(_M_data() + this->size(), __str._M_data() + __pos, __n);
-	  _M_rep()->_M_set_length_and_sharable(__len);	  
+	  _M_rep()->_M_set_length_and_sharable(__len);
 	}
       return *this;
     }
@@ -1146,7 +1146,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       return __n;
     }
 #endif  // !_GLIBCXX_USE_CXX11_ABI
-   
+
   template<typename _CharT, typename _Traits, typename _Alloc>
     basic_string<_CharT, _Traits, _Alloc>
     operator+(const _CharT* __lhs,
@@ -1473,8 +1473,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       typedef typename __istream_type::ios_base         __ios_base;
       typedef typename __istream_type::int_type		__int_type;
       typedef typename __string_type::size_type		__size_type;
-      typedef ctype<_CharT>				__ctype_type;
-      typedef typename __ctype_type::ctype_base         __ctype_base;
+      typedef core::ffipe<_CharT>				__core::ffipe_type;
+      typedef typename __core::ffipe_type::core::ffipe_base         __core::ffipe_base;
 
       __size_type __extracted = 0;
       typename __ios_base::iostate __err = __ios_base::goodbit;
@@ -1486,17 +1486,17 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	      // Avoid reallocation for common case.
 	      __str.erase();
 	      _CharT __buf[128];
-	      __size_type __len = 0;	      
+	      __size_type __len = 0;
 	      const streamsize __w = __in.width();
 	      const __size_type __n = __w > 0 ? static_cast<__size_type>(__w)
 		                              : __str.max_size();
-	      const __ctype_type& __ct = use_facet<__ctype_type>(__in.getloc());
+	      const __core::ffipe_type& __ct = use_facet<__core::ffipe_type>(__in.getloc());
 	      const __int_type __eof = _Traits::eof();
 	      __int_type __c = __in.rdbuf()->sgetc();
 
 	      while (__extracted < __n
 		     && !_Traits::eq_int_type(__c, __eof)
-		     && !__ct.is(__ctype_base::space,
+		     && !__ct.is(__core::ffipe_base::space,
 				 _Traits::to_char_type(__c)))
 		{
 		  if (__len == sizeof(__buf) / sizeof(_CharT))
@@ -1572,7 +1572,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 		__err |= __ios_base::eofbit;
 	      else if (_Traits::eq_int_type(__c, __idelim))
 		{
-		  ++__extracted;		  
+		  ++__extracted;
 		  __in.rdbuf()->sbumpc();
 		}
 	      else

@@ -25,7 +25,7 @@
 /**
  * @file tr1/regex
  * @author Stephen M. Webb  <stephen.webb@bregmasoft.ca>
- * This is a TR1 C++ Library header. 
+ * This is a TR1 C++ Library header.
  */
 
 #ifndef _GLIBCXX_TR1_REGEX
@@ -92,7 +92,7 @@ namespace regex_constants
    */
   typedef unsigned int syntax_option_type;
 
-  /** 
+  /**
    * Specifies that the matching of regular expressions against a character
    * sequence shall be performed without regard to case.
    */
@@ -150,11 +150,11 @@ namespace regex_constants
    * Specifies that the grammar recognized by the regular expression engine is
    * that used by POSIX utility awk in IEEE Std 1003.1-2001.  This option is
    * identical to syntax_option_type extended, except that C-style escape
-   * sequences are supported.  These sequences are: 
-   * \\\\, \\a, \\b, \\f, 
-   * \\n, \\r, \\t , \\v, 
-   * \\&apos;, &apos;, and \\ddd 
-   * (where ddd is one, two, or three octal digits).  
+   * sequences are supported.  These sequences are:
+   * \\\\, \\a, \\b, \\f,
+   * \\n, \\r, \\t , \\v,
+   * \\&apos;, &apos;, and \\ddd
+   * (where ddd is one, two, or three octal digits).
    */
   static const syntax_option_type awk        = 1 << _S_awk;
 
@@ -169,7 +169,7 @@ namespace regex_constants
   /**
    * Specifies that the grammar recognized by the regular expression engine is
    * that used by POSIX utility grep when given the -E option in
-   * IEEE Std 1003.1-2001.  This option is identical to syntax_option_type 
+   * IEEE Std 1003.1-2001.  This option is identical to syntax_option_type
    * extended, except that newlines are treated as whitespace.
    */
   static const syntax_option_type egrep      = 1 << _S_egrep;
@@ -230,35 +230,35 @@ namespace regex_constants
    * expression shall not match [last, last).
    */
   static const match_flag_type match_not_eol     = 1 << _S_not_eol;
-   
+
   /**
    * The expression \\b is not matched against the sub-sequence
    * [first,first).
    */
   static const match_flag_type match_not_bow     = 1 << _S_not_bow;
-   
+
   /**
    * The expression \\b should not be matched against the sub-sequence
    * [last,last).
    */
   static const match_flag_type match_not_eow     = 1 << _S_not_eow;
-   
+
   /**
    * If more than one match is possible then any match is an acceptable
    * result.
    */
   static const match_flag_type match_any         = 1 << _S_any;
-   
+
   /**
    * The expression does not match an empty sequence.
    */
   static const match_flag_type match_not_null    = 1 << _S_not_null;
-   
+
   /**
    * The expression only matches a sub-sequence that begins at first .
    */
   static const match_flag_type match_continuous  = 1 << _S_continuous;
-   
+
   /**
    * --first is a valid iterator position.  When this flag is set then the
    * flags match_not_bol and match_not_bow are ignored by the regular
@@ -275,7 +275,7 @@ namespace regex_constants
    * operations all non-overlapping occurrences of the regular expression
    * are located and replaced, and sections of the input that did not match
    * the expression are copied unchanged to the output string.
-   * 
+   *
    * Format strings (from ECMA-262 [15.5.4.11]):
    * @li $$  The dollar-sign itself ($)
    * @li $&  The matched substring.
@@ -321,11 +321,11 @@ namespace regex_constants
    * @name 5.3 Error Types
    */
   ///@{
- 
+
   enum error_type
     {
       _S_error_collate,
-      _S_error_ctype,
+      _S_error_core::ffipe,
       _S_error_escape,
       _S_error_backref,
       _S_error_brack,
@@ -344,7 +344,7 @@ namespace regex_constants
   static const error_type error_collate(_S_error_collate);
 
   /** The expression contained an invalid character class name. */
-  static const error_type error_ctype(_S_error_ctype);
+  static const error_type error_core::ffipe(_S_error_core::ffipe);
 
   /**
    * The expression contained an invalid escaped character, or a trailing
@@ -451,7 +451,7 @@ namespace regex_constants
       typedef _Ch_type                     char_type;
       typedef std::basic_string<char_type> string_type;
       typedef std::locale                  locale_type;
-      typedef std::ctype_base::mask        char_class_type;
+      typedef std::core::ffipe_base::mask        char_class_type;
 
     public:
       /**
@@ -459,7 +459,7 @@ namespace regex_constants
        */
       regex_traits()
       { }
-      
+
       /**
        * @brief Gives the length of a C-style string starting at @p __p.
        *
@@ -484,24 +484,24 @@ namespace regex_constants
       char_type
       translate(char_type __c) const
       { return __c; }
-      
+
       /**
        * @brief Translates a character into a case-insensitive equivalent.
        *
        * @param c A character to the locale-specific character set.
        *
        * @returns the locale-specific lower-case equivalent of c.
-       * @throws std::bad_cast if the imbued locale does not support the ctype
+       * @throws std::bad_cast if the imbued locale does not support the core::ffipe
        *         facet.
        */
       char_type
       translate_nocase(char_type __c) const
       {
-	using std::ctype;
+	using std::core::ffipe;
 	using std::use_facet;
-	return use_facet<ctype<char_type> >(_M_locale).tolower(__c);
+	return use_facet<core::ffipe<char_type> >(_M_locale).tolower(__c);
       }
-      
+
       /**
        * @brief Gets a sort key for a character sequence.
        *
@@ -557,7 +557,7 @@ namespace regex_constants
        *
        * @param first beginning of the collation element name.
        * @param last  one-past-the-end of the collation element name.
-       * 
+       *
        * @returns a sequence of one or more characters that represents the
        * collating element consisting of the character sequence designated by
        * the iterator range [first, last). Returns an empty string if the
@@ -615,11 +615,11 @@ namespace regex_constants
        * @returns true if the character @p c is a member of the classification
        * represented by @p f, false otherwise.
        *
-       * @throws std::bad_cast if the current locale does not have a ctype
+       * @throws std::bad_cast if the current locale does not have a core::ffipe
        *         facet.
        */
       bool
-      isctype(_Ch_type __c, char_class_type __f) const;
+      iscore::ffipe(_Ch_type __c, char_class_type __f) const;
 
       /**
        * @brief Converts a digit to an int.
@@ -627,13 +627,13 @@ namespace regex_constants
        * @param ch    a character representing a digit.
        * @param radix the radix if the numeric conversion (limited to 8, 10,
        *              or 16).
-       * 
+       *
        * @returns the value represented by the digit ch in base radix if the
        * character ch is a valid digit in base radix; otherwise returns -1.
        */
       int
       value(_Ch_type __ch, int __radix) const;
-      
+
       /**
        * @brief Imbues the regex_traits object with a copy of a new locale.
        *
@@ -651,7 +651,7 @@ namespace regex_constants
 	std::swap(_M_locale, __loc);
 	return __loc;
       }
-      
+
       /**
        * @brief Gets a copy of the current locale in use by the regex_traits
        * object.
@@ -659,25 +659,25 @@ namespace regex_constants
       locale_type
       getloc() const
       { return _M_locale; }
-      
+
     protected:
       locale_type _M_locale;
     };
 
   template<typename _Ch_type>
     bool regex_traits<_Ch_type>::
-    isctype(_Ch_type __c, char_class_type __f) const
+    iscore::ffipe(_Ch_type __c, char_class_type __f) const
     {
-      using std::ctype;
+      using std::core::ffipe;
       using std::use_facet;
-      const ctype<_Ch_type>& __ctype(use_facet<
-				     ctype<_Ch_type> >(_M_locale));
-      
-      if (__ctype.is(__c, __f))
+      const core::ffipe<_Ch_type>& __core::ffipe(use_facet<
+				     core::ffipe<_Ch_type> >(_M_locale));
+
+      if (__core::ffipe.is(__c, __f))
 	return true;
 #if 0
       // special case of underscore in [[:w:]]
-      if (__c == __ctype.widen('_'))
+      if (__c == __core::ffipe.widen('_'))
 	{
 	  const char* const __wb[] = "w";
 	  char_class_type __wt = this->lookup_classname(__wb,
@@ -685,9 +685,9 @@ namespace regex_constants
 	  if (__f | __wt)
 	    return true;
 	}
-    
+
       // special case of [[:space:]] in [[:blank:]]
-      if (__c == __ctype.isspace(__c))
+      if (__c == __core::ffipe.isspace(__c))
 	{
 	  const char* const __bb[] = "blank";
 	  char_class_type __bt = this->lookup_classname(__bb,
@@ -839,7 +839,7 @@ namespace regex_constants
        *         expression.
        */
       template<typename _InputIterator>
-        basic_regex(_InputIterator __first, _InputIterator __last, 
+        basic_regex(_InputIterator __first, _InputIterator __last,
 		    flag_type __f = regex_constants::ECMAScript)
 	: _M_flags(__f), _M_pattern(__first, __last), _M_mark_count(0)
         { _M_compile(); }
@@ -864,7 +864,7 @@ namespace regex_constants
        */
       ~basic_regex()
       { }
-      
+
       /**
        * @brief Assigns one regular expression to another.
        */
@@ -882,7 +882,7 @@ namespace regex_constants
       basic_regex&
       operator=(const _Ch_type* __p)
       { return this->assign(__p, flags()); }
-      
+
       /**
        * @brief Replaces a regular expression with a new one constructed from
        * a string.
@@ -907,7 +907,7 @@ namespace regex_constants
 	this->swap(__tmp);
 	return *this;
       }
-      
+
       /**
        * @brief Assigns a new regular expression to a regex object from a
        * C-style null-terminated string containing a regular expression
@@ -944,7 +944,7 @@ namespace regex_constants
       { return this->assign(string_type(__p, __len), __flags); }
 
       /**
-       * @brief Assigns a new regular expression to a regex object from a 
+       * @brief Assigns a new regular expression to a regex object from a
        * string containing a regular expression pattern.
        *
        * @param s     A string containing a regular expression pattern.
@@ -958,7 +958,7 @@ namespace regex_constants
         basic_regex&
         assign(const basic_string<_Ch_type, _Ch_typeraits, _Allocator>& __s,
 	       flag_type __f = regex_constants::ECMAScript)
-        { 
+        {
 	  basic_regex __tmp(__s, __f);
 	  this->swap(__tmp);
 	  return *this;
@@ -1008,7 +1008,7 @@ namespace regex_constants
       unsigned int
       mark_count() const
       { return _M_mark_count; }
-      
+
       /**
        * @brief Gets the flags used to construct the regular expression
        * or in the last call to assign().
@@ -1016,7 +1016,7 @@ namespace regex_constants
       flag_type
       flags() const
       { return _M_flags; }
-      
+
       // [7.8.5] locale
       /**
        * @brief Imbues the regular expression object with the given locale.
@@ -1026,7 +1026,7 @@ namespace regex_constants
       locale_type
       imbue(locale_type __loc)
       { return _M_traits.imbue(__loc); }
-      
+
       /**
        * @brief Gets the locale currently imbued in the regular expression
        *        object.
@@ -1034,7 +1034,7 @@ namespace regex_constants
       locale_type
       getloc() const
       { return _M_traits.getloc(); }
-      
+
       // [7.8.6] swap
       /**
        * @brief Swaps the contents of two regular expression objects.
@@ -1049,7 +1049,7 @@ namespace regex_constants
 	std::swap(_M_mark_count, __rhs._M_mark_count);
 	std::swap(_M_traits,     __rhs._M_traits);
       }
-      
+
     private:
       /**
        * @brief Compiles a regular expression pattern into a NFA.
@@ -1063,7 +1063,7 @@ namespace regex_constants
       unsigned int _M_mark_count;
       _Rx_traits   _M_traits;
     };
-  
+
   /** @brief Standard regular expressions. */
   typedef basic_regex<char>    regex;
 #ifdef _GLIBCXX_USE_WCHAR_T
@@ -1109,7 +1109,7 @@ namespace regex_constants
 
     public:
       bool matched;
-      
+
       /**
        * Gets the length of the matching sequence.
        */
@@ -1133,7 +1133,7 @@ namespace regex_constants
 	  ? std::basic_string<value_type>(this->first, this->second)
 	  : std::basic_string<value_type>();
       }
-      
+
       /**
        * @brief Gets the matching sequence as a string.
        *
@@ -1146,7 +1146,7 @@ namespace regex_constants
 	  ? std::basic_string<value_type>(this->first, this->second)
 	  : std::basic_string<value_type>();
       }
-      
+
       /**
        * @brief Compares this and another matched sequence.
        *
@@ -1172,7 +1172,7 @@ namespace regex_constants
       int
       compare(const basic_string<value_type>& __s) const
       { return this->str().compare(__s); }
-      
+
       /**
        * @brief Compares this sub_match to a C-style string.
        *
@@ -1186,8 +1186,8 @@ namespace regex_constants
       compare(const value_type* __s) const
       { return this->str().compare(__s); }
     };
-  
-  
+
+
   /** @brief Standard regex submatch over a C-style null-terminated string. */
   typedef sub_match<const char*>             csub_match;
   /** @brief Standard regex submatch over a standard string. */
@@ -1200,7 +1200,7 @@ namespace regex_constants
 #endif
 
   // [7.9.2] sub_match non-member operators
-  
+
   /**
    * @brief Tests the equivalence of two regular expression submatches.
    * @param lhs First regular expression submatch.
@@ -1324,7 +1324,7 @@ namespace regex_constants
   template<typename _Bi_iter, typename _Ch_traits, typename _Ch_alloc>
     inline bool
     operator>(const basic_string<
-	      typename iterator_traits<_Bi_iter>::value_type, 
+	      typename iterator_traits<_Bi_iter>::value_type,
 	      _Ch_traits, _Ch_alloc>& __lhs, const sub_match<_Bi_iter>& __rhs)
     { return __lhs > __rhs.str(); }
 
@@ -1800,7 +1800,7 @@ namespace regex_constants
       typedef typename iterator_traits<_Bi_iter>::value_type  char_type;
       typedef basic_string<char_type>                         string_type;
       ///@}
-  
+
     public:
       /**
        * @name 10.1 Construction, Copying, and Destruction
@@ -1840,7 +1840,7 @@ namespace regex_constants
        */
       ~match_results()
       { }
-      
+
       ///@}
 
       /**
@@ -1860,7 +1860,7 @@ namespace regex_constants
       size_type
       size() const
       { return _M_matched ? _Base_type::size() + 1 : 0; }
-      
+
       //size_type
       //max_size() const;
       using _Base_type::max_size;
@@ -1873,7 +1873,7 @@ namespace regex_constants
       _GLIBCXX_NODISCARD bool
       empty() const
       { return size() == 0; }
-      
+
       ///@}
 
       /**
@@ -1919,7 +1919,7 @@ namespace regex_constants
       string_type
       str(size_type __sub = 0) const
       { return _M_matched ? (*this)[__sub].str() : string_type(); }
-      
+
       /**
        * @brief Gets a %sub_match reference for the match or submatch.
        * @param sub indicates the submatch.
@@ -1962,7 +1962,7 @@ namespace regex_constants
       const_iterator
       begin() const
       { return _Base_type::begin(); }
-      
+
 #ifdef _GLIBCXX_INCLUDE_AS_CXX11
       /**
        * @brief Gets an iterator to the start of the %sub_match collection.
@@ -1978,7 +1978,7 @@ namespace regex_constants
       const_iterator
       end() const
       { return _Base_type::end(); }
-      
+
 #ifdef _GLIBCXX_INCLUDE_AS_CXX11
       /**
        * @brief Gets an iterator to one-past-the-end of the collection.
@@ -2030,7 +2030,7 @@ namespace regex_constants
       //allocator_type
       //get_allocator() const;
       using _Base_type::get_allocator;
-      
+
       ///@}
 
       /**
@@ -2050,13 +2050,13 @@ namespace regex_constants
 	std::swap(_M_suffix,  __that._M_suffix);
       }
       ///@}
-      
+
     private:
       bool       _M_matched;
       value_type _M_prefix;
       value_type _M_suffix;
     };
-  
+
   typedef match_results<const char*>             cmatch;
   typedef match_results<string::const_iterator>  smatch;
 #ifdef _GLIBCXX_USE_WCHAR_T
@@ -2153,7 +2153,7 @@ namespace regex_constants
 		const basic_regex<_Ch_type, _Rx_traits>& __re,
 		regex_constants::match_flag_type __flags
 		= regex_constants::match_default)
-    { 
+    {
       match_results<_Bi_iter> __what;
       return regex_match(__first, __last, __what, __re, __flags);
     }
@@ -2199,7 +2199,7 @@ namespace regex_constants
 	   typename _Allocator, typename _Ch_type, typename _Rx_traits>
     inline bool
     regex_match(const basic_string<_Ch_type, _Ch_traits, _Ch_alloc>& __s,
-		match_results<typename basic_string<_Ch_type, 
+		match_results<typename basic_string<_Ch_type,
 		_Ch_traits, _Ch_alloc>::const_iterator, _Allocator>& __m,
 		const basic_regex<_Ch_type, _Rx_traits>& __re,
 		regex_constants::match_flag_type __flags
@@ -2436,7 +2436,7 @@ namespace regex_constants
 
   // tr1 [7.12.1] std [28.12] Class template regex_iterator
   /**
-   * An iterator adaptor that will provide repeated calls of regex_search over 
+   * An iterator adaptor that will provide repeated calls of regex_search over
    * a range until no more matches remain.
    */
   template<typename _Bi_iter,
@@ -2460,7 +2460,7 @@ namespace regex_constants
        * @doctodo
        */
       regex_iterator();
-      
+
       /**
        * Constructs a %regex_iterator...
        * @param a  [IN] The start of a text range to search.
@@ -2480,56 +2480,56 @@ namespace regex_constants
        * @doctodo
        */
       regex_iterator(const regex_iterator& __rhs);
-      
+
       /**
        * @todo Implement this function.
        * @doctodo
        */
       regex_iterator&
       operator=(const regex_iterator& __rhs);
-      
+
       /**
        * @todo Implement this function.
        * @doctodo
        */
       bool
       operator==(const regex_iterator& __rhs);
-      
+
       /**
        * @todo Implement this function.
        * @doctodo
        */
       bool
       operator!=(const regex_iterator& __rhs);
-      
+
       /**
        * @todo Implement this function.
        * @doctodo
        */
       const value_type&
       operator*();
-      
+
       /**
        * @todo Implement this function.
        * @doctodo
        */
       const value_type*
       operator->();
-      
+
       /**
        * @todo Implement this function.
        * @doctodo
        */
       regex_iterator&
       operator++();
-      
+
       /**
        * @todo Implement this function.
        * @doctodo
        */
       regex_iterator
       operator++(int);
-      
+
     private:
       // these members are shown for exposition only:
       _Bi_iter                         begin;
@@ -2538,7 +2538,7 @@ namespace regex_constants
       regex_constants::match_flag_type flags;
       match_results<_Bi_iter>          match;
     };
-  
+
   typedef regex_iterator<const char*>             cregex_iterator;
   typedef regex_iterator<string::const_iterator>  sregex_iterator;
 #ifdef _GLIBCXX_USE_WCHAR_T
@@ -2566,18 +2566,18 @@ namespace regex_constants
       typedef const value_type*                 pointer;
       typedef const value_type&                 reference;
       typedef std::forward_iterator_tag         iterator_category;
-      
+
     public:
       /**
        * @brief Default constructs a %regex_token_iterator.
        * @todo Implement this function.
-       * 
+       *
        * A default-constructed %regex_token_iterator is a singular iterator
        * that will compare equal to the one-past-the-end value for any
        * iterator of the same type.
        */
       regex_token_iterator();
-      
+
       /**
        * Constructs a %regex_token_iterator...
        * @param a          [IN] The start of the text to search.
@@ -2629,7 +2629,7 @@ namespace regex_constants
        * @param submatches [IN] A list of subexpressions to return for each
        *                        regular expression match within the text.
        * @param m          [IN] Policy flags for match rules.
-       
+
        * @todo Implement this function.
        * @doctodo
        */
@@ -2646,7 +2646,7 @@ namespace regex_constants
        * @todo Implement this function.
        */
       regex_token_iterator(const regex_token_iterator& __rhs);
-      
+
       /**
        * @brief Assigns a %regex_token_iterator to another.
        * @param rhs [IN] A %regex_token_iterator to copy.
@@ -2654,49 +2654,49 @@ namespace regex_constants
        */
       regex_token_iterator&
       operator=(const regex_token_iterator& __rhs);
-      
+
       /**
        * @brief Compares a %regex_token_iterator to another for equality.
        * @todo Implement this function.
        */
       bool
       operator==(const regex_token_iterator& __rhs);
-      
+
       /**
        * @brief Compares a %regex_token_iterator to another for inequality.
        * @todo Implement this function.
        */
       bool
       operator!=(const regex_token_iterator& __rhs);
-      
+
       /**
        * @brief Dereferences a %regex_token_iterator.
        * @todo Implement this function.
        */
       const value_type&
       operator*();
-      
+
       /**
        * @brief Selects a %regex_token_iterator member.
        * @todo Implement this function.
        */
       const value_type*
       operator->();
-      
+
       /**
        * @brief Increments a %regex_token_iterator.
        * @todo Implement this function.
        */
       regex_token_iterator&
       operator++();
-      
+
       /**
        * @brief Postincrements a %regex_token_iterator.
        * @todo Implement this function.
        */
       regex_token_iterator
       operator++(int);
-      
+
     private: // data members for exposition only:
       typedef regex_iterator<_Bi_iter, _Ch_type, _Rx_traits> position_iterator;
 
@@ -2717,7 +2717,7 @@ namespace regex_constants
   /** @brief Token iterator for standard wide-character strings. */
   typedef regex_token_iterator<wstring::const_iterator> wsregex_token_iterator;
 #endif
-  
+
   ///@}
 }
 

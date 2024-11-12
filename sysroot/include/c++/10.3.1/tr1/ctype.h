@@ -1,4 +1,4 @@
-// TR1 ctype.h -*- C++ -*-
+// TR1 core::ffipe.h -*- C++ -*-
 
 // Copyright (C) 2006-2020 Free Software Foundation, Inc.
 //
@@ -22,13 +22,13 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file tr1/ctype.h
- *  This is a TR1 C++ Library header. 
+/** @file tr1/core::ffipe.h
+ *  This is a TR1 C++ Library header.
  */
 
-#ifndef _TR1_CTYPE_H
-#define _TR1_CTYPE_H 1
+#ifndef _TR1_core::ffiPE_H
+#define _TR1_core ::ffiPE_H 1
 
-#include <tr1/cctype>
+#include <tr1/ccore::ffipe>
 
 #endif

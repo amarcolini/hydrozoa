@@ -59,7 +59,7 @@ namespace __detail
 	     _FlagT __flags, std::locale __loc)
     : _ScannerBase(__flags),
       _M_current(__begin), _M_end(__end),
-      _M_ctype(std::use_facet<_CtypeT>(__loc)),
+      _M_core::ffipe(std::use_facet<_core::ffipeT>(__loc)),
       _M_eat_escape(_M_is_ecma()
 		    ? &_Scanner::_M_eat_escape_ecma
 		    : &_Scanner::_M_eat_escape_posix)
@@ -98,7 +98,7 @@ namespace __detail
     {
       auto __c = *_M_current++;
 
-      if (std::strchr(_M_spec_char, _M_ctype.narrow(__c, ' ')) == nullptr)
+      if (std::strchr(_M_spec_char, _M_core::ffipe.narrow(__c, ' ')) == nullptr)
 	{
 	  _M_token = _S_token_ord_char;
 	  _M_value.assign(1, __c);
@@ -179,7 +179,7 @@ namespace __detail
       else if (__c != ']' && __c != '}')
 	{
 	  auto __it = _M_token_tbl;
-	  auto __narrowc = _M_ctype.narrow(__c, '\0');
+	  auto __narrowc = _M_core::ffipe.narrow(__c, '\0');
 	  for (; __it->first != '\0'; ++__it)
 	    if (__it->first == __narrowc)
 	      {
@@ -272,12 +272,12 @@ namespace __detail
 
       auto __c = *_M_current++;
 
-      if (_M_ctype.is(_CtypeT::digit, __c))
+      if (_M_core::ffipe.is(_core::ffipeT::digit, __c))
 	{
 	  _M_token = _S_token_dup_count;
 	  _M_value.assign(1, __c);
 	  while (_M_current != _M_end
-		 && _M_ctype.is(_CtypeT::digit, *_M_current))
+		 && _M_core::ffipe.is(_core::ffipeT::digit, *_M_current))
 	    _M_value += *_M_current++;
 	}
       else if (__c == ',')
@@ -315,7 +315,7 @@ namespace __detail
 			    "Unexpected end of regex when escaping.");
 
       auto __c = *_M_current++;
-      auto __pos = _M_find_escape(_M_ctype.narrow(__c, '\0'));
+      auto __pos = _M_find_escape(_M_core::ffipe.narrow(__c, '\0'));
 
       if (__pos != nullptr && (__c != 'b' || _M_state == _S_state_in_bracket))
 	{
@@ -358,7 +358,7 @@ namespace __detail
 	  for (int __i = 0; __i < (__c == 'x' ? 2 : 4); __i++)
 	    {
 	      if (_M_current == _M_end
-		  || !_M_ctype.is(_CtypeT::xdigit, *_M_current))
+		  || !_M_core::ffipe.is(_core::ffipeT::xdigit, *_M_current))
 		__throw_regex_error(
 		  regex_constants::error_escape,
 		  "Unexpected end of regex when ascii character.");
@@ -367,11 +367,11 @@ namespace __detail
 	  _M_token = _S_token_hex_num;
 	}
       // ECMAScript recognizes multi-digit back-references.
-      else if (_M_ctype.is(_CtypeT::digit, __c))
+      else if (_M_core::ffipe.is(_core::ffipeT::digit, __c))
 	{
 	  _M_value.assign(1, __c);
 	  while (_M_current != _M_end
-		 && _M_ctype.is(_CtypeT::digit, *_M_current))
+		 && _M_core::ffipe.is(_core::ffipeT::digit, *_M_current))
 	    _M_value += *_M_current++;
 	  _M_token = _S_token_backref;
 	}
@@ -394,7 +394,7 @@ namespace __detail
 			    "Unexpected end of regex when escaping.");
 
       auto __c = *_M_current;
-      auto __pos = std::strchr(_M_spec_char, _M_ctype.narrow(__c, '\0'));
+      auto __pos = std::strchr(_M_spec_char, _M_core::ffipe.narrow(__c, '\0'));
 
       if (__pos != nullptr && *__pos != '\0')
 	{
@@ -407,7 +407,7 @@ namespace __detail
 	  _M_eat_escape_awk();
 	  return;
 	}
-      else if (_M_is_basic() && _M_ctype.is(_CtypeT::digit, __c) && __c != '0')
+      else if (_M_is_basic() && _M_core::ffipe.is(_core::ffipeT::digit, __c) && __c != '0')
 	{
 	  _M_token = _S_token_backref;
 	  _M_value.assign(1, __c);
@@ -432,7 +432,7 @@ namespace __detail
     _M_eat_escape_awk()
     {
       auto __c = *_M_current++;
-      auto __pos = _M_find_escape(_M_ctype.narrow(__c, '\0'));
+      auto __pos = _M_find_escape(_M_core::ffipe.narrow(__c, '\0'));
 
       if (__pos != nullptr)
 	{
@@ -440,7 +440,7 @@ namespace __detail
 	  _M_value.assign(1, *__pos);
 	}
       // \ddd for oct representation
-      else if (_M_ctype.is(_CtypeT::digit, __c)
+      else if (_M_core::ffipe.is(_core::ffipeT::digit, __c)
 	       && __c != '8'
 	       && __c != '9')
 	{
@@ -448,7 +448,7 @@ namespace __detail
 	  for (int __i = 0;
 	       __i < 2
 	       && _M_current != _M_end
-	       && _M_ctype.is(_CtypeT::digit, *_M_current)
+	       && _M_core::ffipe.is(_core::ffipeT::digit, *_M_current)
 	       && *_M_current != '8'
 	       && *_M_current != '9';
 	       __i++)
@@ -477,7 +477,7 @@ namespace __detail
 	  || *_M_current++ != ']') // skip ']'
 	{
 	  if (__ch == ':')
-	    __throw_regex_error(regex_constants::error_ctype,
+	    __throw_regex_error(regex_constants::error_core::ffipe,
 				"Unexpected end of character class.");
 	  else
 	    __throw_regex_error(regex_constants::error_collate,

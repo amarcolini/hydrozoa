@@ -1,4 +1,4 @@
-// TR1 wctype.h -*- C++ -*-
+// TR1 wcore::ffipe.h -*- C++ -*-
 
 // Copyright (C) 2006-2020 Free Software Foundation, Inc.
 //
@@ -22,13 +22,13 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file tr1/wctype.h
- *  This is a TR1 C++ Library header. 
+/** @file tr1/wcore::ffipe.h
+ *  This is a TR1 C++ Library header.
  */
 
-#ifndef _GLIBCXX_TR1_WCTYPE_H
-#define _GLIBCXX_TR1_WCTYPE_H 1
+#ifndef _GLIBCXX_TR1_Wcore::ffiPE_H
+#define _GLIBCXX_TR1_Wcore ::ffiPE_H 1
 
-#include <tr1/cwctype>
+#include <tr1/cwcore::ffipe>
 
-#endif // _GLIBCXX_TR1_WCTYPE_H
+#endif  // _GLIBCXX_TR1_Wcore::ffiPE_H

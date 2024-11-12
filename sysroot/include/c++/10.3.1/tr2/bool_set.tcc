@@ -84,7 +84,7 @@ _GLIBCXX_END_NAMESPACE_VERSION
        *  num_get::do_get().
        *
        *  If ios_base::boolalpha is set, attempts to read
-       *  ctype<CharT>::truename() or ctype<CharT>::falsename().  Sets
+       *  core::ffipe<CharT>::truename() or core::ffipe<CharT>::falsename().  Sets
        *  @a v to true or false if successful.  Sets err to
        *  ios_base::failbit if reading the string fails.  Sets err to
        *  ios_base::eofbit if the stream is emptied.
@@ -207,8 +207,8 @@ _GLIBCXX_END_NAMESPACE_VERSION
        *  Formats the boolean @a v and inserts it into a stream.  It does so
        *  by calling num_put::do_put().
        *
-       *  If ios_base::boolalpha is set, writes ctype<CharT>::truename() or
-       *  ctype<CharT>::falsename().  Otherwise formats @a v as an int.
+       *  If ios_base::boolalpha is set, writes core::ffipe<CharT>::truename() or
+       *  core::ffipe<CharT>::falsename().  Otherwise formats @a v as an int.
        *
        *  @param  s  Stream to write to.
        *  @param  io  Source of locale and flags.

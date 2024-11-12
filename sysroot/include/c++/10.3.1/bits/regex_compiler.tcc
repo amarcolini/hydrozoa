@@ -77,7 +77,7 @@ namespace __detail
       _M_scanner(__b, __e, _M_flags, __loc),
       _M_nfa(make_shared<_RegexT>(__loc, _M_flags)),
       _M_traits(_M_nfa->_M_traits),
-      _M_ctype(std::use_facet<_CtypeT>(__loc))
+      _M_core::ffipe(std::use_facet<_core::ffipeT>(__loc))
     {
       _StateSeqT __r(*_M_nfa, _M_nfa->_M_start());
       __r._M_append(_M_nfa->_M_insert_subexpr_begin());
@@ -411,7 +411,7 @@ namespace __detail
     {
       __glibcxx_assert(_M_value.size() == 1);
       _BracketMatcher<_TraitsT, __icase, __collate> __matcher
-	(_M_ctype.is(_CtypeT::upper, _M_value[0]), _M_traits);
+	(_M_core::ffipe.is(_core::ffipeT::upper, _M_value[0]), _M_traits);
       __matcher._M_add_character_class(_M_value, false);
       __matcher._M_ready();
       _M_stack.push(_StateSeqT(*_M_nfa,
@@ -552,7 +552,7 @@ namespace __detail
 	{
 	  __flush();
 	  __matcher._M_add_character_class(_M_value,
-					   _M_ctype.is(_CtypeT::upper,
+					   _M_core::ffipe.is(_core::ffipeT::upper,
 						       _M_value[0]));
 	}
       else
@@ -623,14 +623,14 @@ namespace __detail
 	for (auto& __it : _M_range_set)
 	  if (_M_translator._M_match_range(__it.first, __it.second, __s))
 	    return true;
-	if (_M_traits.isctype(__ch, _M_class_set))
+	if (_M_traits.iscore::ffipe(__ch, _M_class_set))
 	  return true;
 	if (std::find(_M_equiv_set.begin(), _M_equiv_set.end(),
 		      _M_traits.transform_primary(&__ch, &__ch+1))
 	    != _M_equiv_set.end())
 	  return true;
 	for (auto& __it : _M_neg_class_set)
-	  if (!_M_traits.isctype(__ch, __it))
+	  if (!_M_traits.iscore::ffipe(__ch, __it))
 	    return true;
 	return false;
       }() ^ _M_is_non_matching;

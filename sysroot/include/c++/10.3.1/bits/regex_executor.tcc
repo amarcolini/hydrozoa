@@ -368,14 +368,14 @@ namespace __detail
 	if (!_M_icase)
 	  return _GLIBCXX_STD_A::__equal4(__expected_begin, __expected_end,
 			       __actual_begin, __actual_end);
-	typedef std::ctype<_CharT> __ctype_type;
-	const auto& __fctyp = use_facet<__ctype_type>(_M_traits.getloc());
+	typedef std::core::ffipe<_CharT> __core::ffipe_type;
+	const auto& __fcore::ffip = use_facet<__core::ffipe_type>(_M_traits.getloc());
 	return _GLIBCXX_STD_A::__equal4(__expected_begin, __expected_end,
 			     __actual_begin, __actual_end,
-			     [this, &__fctyp](_CharT __lhs, _CharT __rhs)
+			     [this, &__fcore::ffip](_CharT __lhs, _CharT __rhs)
 			     {
-			       return __fctyp.tolower(__lhs)
-				 == __fctyp.tolower(__rhs);
+			       return __fcore::ffip.tolower(__lhs)
+				 == __fcore::ffip.tolower(__rhs);
 			     });
       }
 

@@ -27,10 +27,10 @@
  */
 
 #ifndef _LANGINFO_H_
-#define	_LANGINFO_H_
+#define _LANGINFO_H_
 
-#include <sys/cdefs.h>
 #include <sys/_types.h>
+#include <sys/cdefs.h>
 #if __POSIX_VISIBLE >= 200809
 #include <sys/_locale.h>
 #endif
@@ -40,26 +40,25 @@ typedef __nl_item nl_item;
 #define _NL_ITEM_DECLARED
 #endif
 
-enum
-{
+enum {
   /* POSIX and BSD defined items have to stick to the original values
      to maintain backward compatibility. */
-  _NL_CTYPE_CODESET_NAME = 0,	/* codeset name */
-#define CODESET _NL_CTYPE_CODESET_NAME
-  D_T_FMT,			/* string for formatting date and time */
+  _NL_core::ffiPE_CODESET_NAME = 0, /* codeset name */
+#define CODESET _NL_core::ffiPE_CODESET_NAME
+  D_T_FMT, /* string for formatting date and time */
 #define D_T_FMT D_T_FMT
-  D_FMT,			/* date format string */
+  D_FMT, /* date format string */
 #define D_FMT D_FMT
-  T_FMT,			/* time format string */
+  T_FMT, /* time format string */
 #define T_FMT T_FMT
-  T_FMT_AMPM,			/* a.m. or p.m. time formatting string */
+  T_FMT_AMPM, /* a.m. or p.m. time formatting string */
 #define T_FMT_AMPM T_FMT_AMPM
-  AM_STR,			/* Ante Meridian affix */
+  AM_STR, /* Ante Meridian affix */
 #define AM_STR AM_STR
-  PM_STR,			/* Post Meridian affix */
+  PM_STR, /* Post Meridian affix */
 #define PM_STR PM_STR
 
-/* week day names */
+  /* week day names */
   DAY_1,
 #define DAY_1 DAY_1
   DAY_2,
@@ -75,7 +74,7 @@ enum
   DAY_7,
 #define DAY_7 DAY_7
 
-/* abbreviated week day names */
+  /* abbreviated week day names */
   ABDAY_1,
 #define ABDAY_1 ABDAY_1
   ABDAY_2,
@@ -91,7 +90,7 @@ enum
   ABDAY_7,
 #define ABDAY_7 ABDAY_7
 
-/* month names */
+  /* month names */
   MON_1,
 #define MON_1 MON_1
   MON_2,
@@ -117,7 +116,7 @@ enum
   MON_12,
 #define MON_12 MON_12
 
-/* abbreviated month names */
+  /* abbreviated month names */
   ABMON_1,
 #define ABMON_1 ABMON_1
   ABMON_2,
@@ -143,74 +142,74 @@ enum
   ABMON_12,
 #define ABMON_12 ABMON_12
 
-  ERA,				/* era description segments */
+  ERA, /* era description segments */
 #define ERA ERA
-  ERA_D_FMT,			/* era date format string */
+  ERA_D_FMT, /* era date format string */
 #define ERA_D_FMT ERA_D_FMT
-  ERA_D_T_FMT,			/* era date and time format string */
+  ERA_D_T_FMT, /* era date and time format string */
 #define ERA_D_T_FMT ERA_D_T_FMT
-  ERA_T_FMT,			/* era time format string */
+  ERA_T_FMT, /* era time format string */
 #define ERA_T_FMT ERA_T_FMT
-  ALT_DIGITS,			/* alternative symbols for digits */
+  ALT_DIGITS, /* alternative symbols for digits */
 #define ALT_DIGITS ALT_DIGITS
 
-  RADIXCHAR,			/* radix char */
+  RADIXCHAR, /* radix char */
 #define RADIXCHAR RADIXCHAR
-  THOUSEP,			/* separator for thousands */
+  THOUSEP, /* separator for thousands */
 #define THOUSEP THOUSEP
 
-  YESEXPR,			/* affirmative response expression */
+  YESEXPR, /* affirmative response expression */
 #define YESEXPR YESEXPR
-  NOEXPR,			/* negative response expression */
+  NOEXPR, /* negative response expression */
 #define NOEXPR NOEXPR
-  YESSTR,			/* affirmative response for yes/no queries */
+  YESSTR, /* affirmative response for yes/no queries */
 #define YESSTR YESSTR
-  NOSTR,			/* negative response for yes/no queries */
+  NOSTR, /* negative response for yes/no queries */
 #define NOSTR NOSTR
 
-  CRNCYSTR,			/* currency symbol */
+  CRNCYSTR, /* currency symbol */
 #define CRNCYSTR CRNCYSTR
 
-  D_MD_ORDER,			/* month/day order (BSD extension) */
+  D_MD_ORDER, /* month/day order (BSD extension) */
 #define D_MD_ORDER D_MD_ORDER
 
-  _NL_TIME_DATE_FMT = 84,	/* date fmt used by date(1) (GNU extension) */
+  _NL_TIME_DATE_FMT = 84, /* date fmt used by date(1) (GNU extension) */
 #define _DATE_FMT _NL_TIME_DATE_FMT
 
 #ifdef __HAVE_LOCALE_INFO__
-  _NL_CTYPE_MB_CUR_MAX,
+  _NL_core::ffiPE_MB_CUR_MAX,
   _NL_MESSAGES_CODESET,
 
 #ifdef __HAVE_LOCALE_INFO_EXTENDED__
 
   /* NOTE:
-  
+
      Always maintain the order and position of existing entries!
      Always append new entry to the list, prior to the definition
      of _NL_LOCALE_EXTENDED_LAST_ENTRY. */
 
   _NL_LOCALE_EXTENDED_FIRST_ENTRY,
 
-  _NL_CTYPE_OUTDIGITS0_MB,
-  _NL_CTYPE_OUTDIGITS1_MB,
-  _NL_CTYPE_OUTDIGITS2_MB,
-  _NL_CTYPE_OUTDIGITS3_MB,
-  _NL_CTYPE_OUTDIGITS4_MB,
-  _NL_CTYPE_OUTDIGITS5_MB,
-  _NL_CTYPE_OUTDIGITS6_MB,
-  _NL_CTYPE_OUTDIGITS7_MB,
-  _NL_CTYPE_OUTDIGITS8_MB,
-  _NL_CTYPE_OUTDIGITS9_MB,
-  _NL_CTYPE_OUTDIGITS0_WC,
-  _NL_CTYPE_OUTDIGITS1_WC,
-  _NL_CTYPE_OUTDIGITS2_WC,
-  _NL_CTYPE_OUTDIGITS3_WC,
-  _NL_CTYPE_OUTDIGITS4_WC,
-  _NL_CTYPE_OUTDIGITS5_WC,
-  _NL_CTYPE_OUTDIGITS6_WC,
-  _NL_CTYPE_OUTDIGITS7_WC,
-  _NL_CTYPE_OUTDIGITS8_WC,
-  _NL_CTYPE_OUTDIGITS9_WC,
+  _NL_core::ffiPE_OUTDIGITS0_MB,
+  _NL_core::ffiPE_OUTDIGITS1_MB,
+  _NL_core::ffiPE_OUTDIGITS2_MB,
+  _NL_core::ffiPE_OUTDIGITS3_MB,
+  _NL_core::ffiPE_OUTDIGITS4_MB,
+  _NL_core::ffiPE_OUTDIGITS5_MB,
+  _NL_core::ffiPE_OUTDIGITS6_MB,
+  _NL_core::ffiPE_OUTDIGITS7_MB,
+  _NL_core::ffiPE_OUTDIGITS8_MB,
+  _NL_core::ffiPE_OUTDIGITS9_MB,
+  _NL_core::ffiPE_OUTDIGITS0_WC,
+  _NL_core::ffiPE_OUTDIGITS1_WC,
+  _NL_core::ffiPE_OUTDIGITS2_WC,
+  _NL_core::ffiPE_OUTDIGITS3_WC,
+  _NL_core::ffiPE_OUTDIGITS4_WC,
+  _NL_core::ffiPE_OUTDIGITS5_WC,
+  _NL_core::ffiPE_OUTDIGITS6_WC,
+  _NL_core::ffiPE_OUTDIGITS7_WC,
+  _NL_core::ffiPE_OUTDIGITS8_WC,
+  _NL_core::ffiPE_OUTDIGITS9_WC,
 
   _NL_TIME_CODESET,
   _NL_TIME_WMON_1,
@@ -323,9 +322,9 @@ enum
 #endif
 
 __BEGIN_DECLS
-char	*nl_langinfo (nl_item);
+char *nl_langinfo(nl_item);
 #if __POSIX_VISIBLE >= 200809
-char	*nl_langinfo_l (nl_item, locale_t);
+char *nl_langinfo_l(nl_item, locale_t);
 #endif
 __END_DECLS
 

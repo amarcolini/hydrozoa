@@ -58,9 +58,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 		__streambuf_type* __sb = __in.rdbuf();
 		__int_type __c = __sb->sgetc();
 
-		const __ctype_type& __ct = __check_facet(__in._M_ctype);
+		const __core::ffipe_type& __ct = __check_facet(__in._M_core::ffipe);
 		while (!traits_type::eq_int_type(__c, __eof)
-		       && __ct.is(ctype_base::space,
+		       && __ct.is(core::ffipe_base::space,
 				  traits_type::to_char_type(__c)))
 		  __c = __sb->snextc();
 
@@ -187,7 +187,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 		}
 	      else if (__l > __gnu_cxx::__numeric_traits<int>::__max)
 		{
-		  __err |= ios_base::failbit;	      
+		  __err |= ios_base::failbit;
 		  __n = __gnu_cxx::__numeric_traits<int>::__max;
 		}
 	      else
@@ -867,7 +867,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 		  // 136.  seekp, seekg setting wrong streams?
 		  const pos_type __p = this->rdbuf()->pubseekpos(__pos,
 								 ios_base::in);
-		  
+
 		  // 129.  Need error indication from seekp() and seekg()
 		  if (__p == pos_type(off_type(-1)))
 		    __err |= ios_base::failbit;
@@ -906,7 +906,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 		  // 136.  seekp, seekg setting wrong streams?
 		  const pos_type __p = this->rdbuf()->pubseekoff(__off, __dir,
 								 ios_base::in);
-	      
+
 		  // 129.  Need error indication from seekp() and seekg()
 		  if (__p == pos_type(off_type(-1)))
 		    __err |= ios_base::failbit;
@@ -966,7 +966,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       typedef basic_streambuf<_CharT, _Traits>          __streambuf_type;
       typedef typename _Traits::int_type		int_type;
       typedef _CharT					char_type;
-      typedef ctype<_CharT>				__ctype_type;
+      typedef core::ffipe<_CharT>				__core::ffipe_type;
 
       streamsize __extracted = 0;
       ios_base::iostate __err = ios_base::goodbit;
@@ -980,7 +980,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	      if (__num <= 0)
 		__num = __gnu_cxx::__numeric_traits<streamsize>::__max;
 
-	      const __ctype_type& __ct = use_facet<__ctype_type>(__in.getloc());
+	      const __core::ffipe_type& __ct = use_facet<__core::ffipe_type>(__in.getloc());
 
 	      const int_type __eof = _Traits::eof();
 	      __streambuf_type* __sb = __in.rdbuf();
@@ -988,7 +988,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 	      while (__extracted < __num - 1
 		     && !_Traits::eq_int_type(__c, __eof)
-		     && !__ct.is(ctype_base::space,
+		     && !__ct.is(core::ffipe_base::space,
 				 _Traits::to_char_type(__c)))
 		{
 		  *__s++ = _Traits::to_char_type(__c);
@@ -1026,15 +1026,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       typedef basic_istream<_CharT, _Traits>		__istream_type;
       typedef basic_streambuf<_CharT, _Traits>          __streambuf_type;
       typedef typename __istream_type::int_type		__int_type;
-      typedef ctype<_CharT>				__ctype_type;
+      typedef core::ffipe<_CharT>				__core::ffipe_type;
 
-      const __ctype_type& __ct = use_facet<__ctype_type>(__in.getloc());
+      const __core::ffipe_type& __ct = use_facet<__core::ffipe_type>(__in.getloc());
       const __int_type __eof = _Traits::eof();
       __streambuf_type* __sb = __in.rdbuf();
       __int_type __c = __sb->sgetc();
 
       while (!_Traits::eq_int_type(__c, __eof)
-	     && __ct.is(ctype_base::space, _Traits::to_char_type(__c)))
+	     && __ct.is(core::ffipe_base::space, _Traits::to_char_type(__c)))
 	__c = __sb->snextc();
 
        if (_Traits::eq_int_type(__c, __eof))
@@ -1055,7 +1055,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   extern template istream& operator>>(istream&, signed char*);
 
   extern template istream& istream::_M_extract(unsigned short&);
-  extern template istream& istream::_M_extract(unsigned int&);  
+  extern template istream& istream::_M_extract(unsigned int&);
   extern template istream& istream::_M_extract(long&);
   extern template istream& istream::_M_extract(unsigned long&);
   extern template istream& istream::_M_extract(bool&);
@@ -1077,7 +1077,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   extern template wistream& operator>>(wistream&, wchar_t*);
 
   extern template wistream& wistream::_M_extract(unsigned short&);
-  extern template wistream& wistream::_M_extract(unsigned int&);  
+  extern template wistream& wistream::_M_extract(unsigned int&);
   extern template wistream& wistream::_M_extract(long&);
   extern template wistream& wistream::_M_extract(unsigned long&);
   extern template wistream& wistream::_M_extract(bool&);

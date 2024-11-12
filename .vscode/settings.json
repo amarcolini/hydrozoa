@@ -1,7 +1,6 @@
 {
     "rust-analyzer.check.targets": [
-        "${workspaceFolder}/armv7a-vex-v5.json",
-        "wasm32-unknown-unknown"
+        "${workspaceFolder}/armv7a-vex-v5.json"
     ],
     "rust-analyzer.check.allTargets": false,
     "rust-analyzer.cargo.features": "all",

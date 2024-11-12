@@ -78,7 +78,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       char* __grouping = 0;
       _CharT* __curr_symbol = 0;
       _CharT* __positive_sign = 0;
-      _CharT* __negative_sign = 0;     
+      _CharT* __negative_sign = 0;
       __try
 	{
 	  const string& __g = __mp.grouping();
@@ -108,7 +108,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  _M_pos_format = __mp.pos_format();
 	  _M_neg_format = __mp.neg_format();
 
-	  const ctype<_CharT>& __ct = use_facet<ctype<_CharT> >(__loc);
+	  const core::ffipe<_CharT>& __ct = use_facet<core::ffipe<_CharT> >(__loc);
 	  __ct.widen(money_base::_S_atoms,
 		     money_base::_S_atoms + money_base::_S_end, _M_atoms);
 
@@ -138,12 +138,12 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 		 ios_base::iostate& __err, string& __units) const
       {
 	typedef char_traits<_CharT>			  __traits_type;
-	typedef typename string_type::size_type	          size_type;	
+	typedef typename string_type::size_type	          size_type;
 	typedef money_base::part			  part;
 	typedef __moneypunct_cache<_CharT, _Intl>         __cache_type;
-	
+
 	const locale& __loc = __io._M_getloc();
-	const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+	const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
 
 	__use_cache<__cache_type> __uc;
 	const __cache_type* __lc = __uc(__loc);
@@ -237,14 +237,14 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 		for (; __beg != __end; ++__beg)
 		  {
 		    const char_type __c = *__beg;
-		    const char_type* __q = __traits_type::find(__lit_zero, 
+		    const char_type* __q = __traits_type::find(__lit_zero,
 							       10, __c);
 		    if (__q != 0)
 		      {
 			__res += money_base::_S_atoms[__q - __lit];
 			++__n;
 		      }
-		    else if (__c == __lc->_M_decimal_point 
+		    else if (__c == __lc->_M_decimal_point
 			     && !__testdecfound)
 		      {
 			if (__lc->_M_frac_digits <= 0)
@@ -278,7 +278,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 		break;
 	      case money_base::space:
 		// At least one space is required.
-		if (__beg != __end && __ctype.is(ctype_base::space, *__beg))
+		if (__beg != __end && __core::ffipe.is(core::ffipe_base::space, *__beg))
 		  ++__beg;
 		else
 		  __testvalid = false;
@@ -287,7 +287,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 		// Only if not at the end of the pattern.
 		if (__i != 3)
 		  for (; __beg != __end
-			 && __ctype.is(ctype_base::space, *__beg); ++__beg);
+			 && __core::ffipe.is(core::ffipe_base::space, *__beg); ++__beg);
 		break;
 	      }
 	  }
@@ -300,7 +300,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 	    size_type __i = 1;
 	    for (; __beg != __end && __i < __sign_size
 		   && *__beg == __sign[__i]; ++__beg, (void)++__i);
-	    
+
 	    if (__i != __sign_size)
 	      __testvalid = false;
 	  }
@@ -319,7 +319,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 	    // 22.2.6.1.2, p4
 	    if (__negative && __res[0] != '0')
 	      __res.insert(__res.begin(), '-');
-	    
+
 	    // Test for grouping fidelity.
 	    if (__grouping_tmp.size())
 	      {
@@ -331,7 +331,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 					    __grouping_tmp))
 		  __err |= ios_base::failbit;
 	      }
-	    
+
 	    // Iff not enough digits were supplied after the decimal-point.
 	    if (__testdecfound && __n != __lc->_M_frac_digits)
 	      __testvalid = false;
@@ -342,7 +342,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 	  __err |= ios_base::failbit;
 	else
 	  __units.swap(__res);
-	
+
 	// Iff no more characters are available.
 	if (__beg == __end)
 	  __err |= ios_base::eofbit;
@@ -387,7 +387,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
       typedef typename string::size_type                  size_type;
 
       const locale& __loc = __io._M_getloc();
-      const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+      const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
 
       string __str;
       __beg = __intl ? _M_extract<true>(__beg, __end, __io, __err, __str)
@@ -396,7 +396,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
       if (__len)
 	{
 	  __digits.resize(__len);
-	  __ctype.widen(__str.data(), __str.data() + __len, &__digits[0]);
+	  __core::ffipe.widen(__str.data(), __str.data() + __len, &__digits[0]);
 	}
       return __beg;
     }
@@ -411,9 +411,9 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 	typedef typename string_type::size_type	          size_type;
 	typedef money_base::part                          part;
 	typedef __moneypunct_cache<_CharT, _Intl>         __cache_type;
-      
+
 	const locale& __loc = __io._M_getloc();
-	const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+	const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
 
 	__use_cache<__cache_type> __uc;
 	const __cache_type* __lc = __uc(__loc);
@@ -440,9 +440,9 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 	    if (__digits.size())
 	      ++__beg;
 	  }
-       
-	// Look for valid numbers in the ctype facet within input digits.
-	size_type __len = __ctype.scan_not(ctype_base::digit, __beg,
+
+	// Look for valid numbers in the core::ffipe facet within input digits.
+	size_type __len = __core::ffipe.scan_not(core::ffipe_base::digit, __beg,
 					   __beg + __digits.size()) - __beg;
 	if (__len)
 	  {
@@ -462,7 +462,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
   		if (__lc->_M_grouping_size)
   		  {
 		    __value.assign(2 * __paddec, char_type());
- 		    _CharT* __vend = 
+ 		    _CharT* __vend =
 		      std::__add_grouping(&__value[0], __lc->_M_thousands_sep,
 					  __lc->_M_grouping,
 					  __lc->_M_grouping_size,
@@ -486,9 +486,9 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 		    __value.append(__beg, __len);
 		  }
   	      }
-  
+
 	    // Calculate length of resulting string.
-	    const ios_base::fmtflags __f = __io.flags() 
+	    const ios_base::fmtflags __f = __io.flags()
 	                                   & ios_base::adjustfield;
 	    __len = __value.size() + __sign_size;
 	    __len += ((__io.flags() & ios_base::showbase)
@@ -496,8 +496,8 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 
 	    string_type __res;
 	    __res.reserve(2 * __len);
-	    
-	    const size_type __width = static_cast<size_type>(__io.width());  
+
+	    const size_type __width = static_cast<size_type>(__io.width());
 	    const bool __testipad = (__f == ios_base::internal
 				     && __len < __width);
 	    // Fit formatted digits into the required pattern.
@@ -536,11 +536,11 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 		    break;
 		  }
 	      }
-	    
+
 	    // Special case of multi-part sign parts.
 	    if (__sign_size > 1)
 	      __res.append(__sign + 1, __sign_size - 1);
-	    
+
 	    // Pad, if still necessary.
 	    __len = __res.size();
 	    if (__width > __len)
@@ -553,12 +553,12 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 		  __res.insert(0, __width - __len, __fill);
 		__len = __width;
 	      }
-	    
+
 	    // Write resulting, fully-formatted string to output iterator.
 	    __s = std::__write(__s, __res.data(), __len);
 	  }
 	__io.width(0);
-	return __s;    
+	return __s;
       }
 
 #if defined _GLIBCXX_LONG_DOUBLE_COMPAT && defined __LONG_DOUBLE_128__ \
@@ -578,7 +578,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
 	   long double __units) const
     {
       const locale __loc = __io.getloc();
-      const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+      const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
 #if _GLIBCXX_USE_C99_STDIO
       // First try a buffer perhaps big enough.
       int __cs_size = 64;
@@ -600,11 +600,11 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL_OR_CXX11
       const int __cs_size =
 	__gnu_cxx::__numeric_traits<long double>::__max_exponent10 + 3;
       char* __cs = static_cast<char*>(__builtin_alloca(__cs_size));
-      int __len = std::__convert_from_v(_S_get_c_locale(), __cs, 0, "%.*Lf", 
+      int __len = std::__convert_from_v(_S_get_c_locale(), __cs, 0, "%.*Lf",
 					0, __units);
 #endif
       string_type __digits(__len, char_type());
-      __ctype.widen(__cs, __cs + __len, &__digits[0]);
+      __core::ffipe.widen(__cs, __cs + __len, &__digits[0]);
       return __intl ? _M_insert<true>(__s, __io, __fill, __digits)
 	            : _M_insert<false>(__s, __io, __fill, __digits);
     }
@@ -638,20 +638,20 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
     {
       const locale& __loc = __io._M_getloc();
       const __timepunct<_CharT>& __tp = use_facet<__timepunct<_CharT> >(__loc);
-      const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+      const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
       const size_t __len = char_traits<_CharT>::length(__format);
 
       ios_base::iostate __tmperr = ios_base::goodbit;
       size_t __i = 0;
       for (; __beg != __end && __i < __len && !__tmperr; ++__i)
 	{
-	  if (__ctype.narrow(__format[__i], 0) == '%')
+	  if (__core::ffipe.narrow(__format[__i], 0) == '%')
 	    {
 	      // Verify valid formatting code, attempt to extract.
-	      char __c = __ctype.narrow(__format[++__i], 0);
+	      char __c = __core::ffipe.narrow(__format[++__i], 0);
 	      int __mem = 0;
 	      if (__c == 'E' || __c == 'O')
-		__c = __ctype.narrow(__format[++__i], 0);
+		__c = __core::ffipe.narrow(__format[++__i], 0);
 	      switch (__c)
 		{
 		  const char* __cs;
@@ -697,7 +697,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		  // Default time and date representation.
 		  const char_type*  __dt[2];
 		  __tp._M_date_time_formats(__dt);
-		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr, 
+		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr,
 						__tm, __dt[0]);
 		  break;
 		case 'd':
@@ -710,7 +710,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		case 'e':
 		  // Day [1, 31], with single digits preceded by
 		  // space. [tm_mday]
-		  if (__ctype.is(ctype_base::space, *__beg))
+		  if (__core::ffipe.is(core::ffipe_base::space, *__beg))
 		    __beg = _M_extract_num(++__beg, __end, __mem, 1, 9,
 					   1, __io, __tmperr);
 		  else
@@ -722,8 +722,8 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		case 'D':
 		  // Equivalent to %m/%d/%y.[tm_mon, tm_mday, tm_year]
 		  __cs = "%m/%d/%y";
-		  __ctype.widen(__cs, __cs + 9, __wcs);
-		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr, 
+		  __core::ffipe.widen(__cs, __cs + 9, __wcs);
+		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr,
 						__tm, __wcs);
 		  break;
 		case 'H':
@@ -742,7 +742,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		  break;
 		case 'm':
 		  // Month [01, 12]. [tm_mon]
-		  __beg = _M_extract_num(__beg, __end, __mem, 1, 12, 2, 
+		  __beg = _M_extract_num(__beg, __end, __mem, 1, 12, 2,
 					 __io, __tmperr);
 		  if (!__tmperr)
 		    __tm->tm_mon = __mem - 1;
@@ -755,7 +755,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		    __tm->tm_min = __mem;
 		  break;
 		case 'n':
-		  if (__ctype.narrow(*__beg, 0) == '\n')
+		  if (__core::ffipe.narrow(*__beg, 0) == '\n')
 		    ++__beg;
 		  else
 		    __tmperr |= ios_base::failbit;
@@ -763,8 +763,8 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		case 'R':
 		  // Equivalent to (%H:%M).
 		  __cs = "%H:%M";
-		  __ctype.widen(__cs, __cs + 6, __wcs);
-		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr, 
+		  __core::ffipe.widen(__cs, __cs + 6, __wcs);
+		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr,
 						__tm, __wcs);
 		  break;
 		case 'S':
@@ -780,7 +780,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		  __tm->tm_sec = __mem;
 		  break;
 		case 't':
-		  if (__ctype.narrow(*__beg, 0) == '\t')
+		  if (__core::ffipe.narrow(*__beg, 0) == '\t')
 		    ++__beg;
 		  else
 		    __tmperr |= ios_base::failbit;
@@ -788,22 +788,22 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		case 'T':
 		  // Equivalent to (%H:%M:%S).
 		  __cs = "%H:%M:%S";
-		  __ctype.widen(__cs, __cs + 9, __wcs);
-		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr, 
+		  __core::ffipe.widen(__cs, __cs + 9, __wcs);
+		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr,
 						__tm, __wcs);
 		  break;
 		case 'x':
 		  // Locale's date.
 		  const char_type*  __dates[2];
 		  __tp._M_date_formats(__dates);
-		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr, 
+		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr,
 						__tm, __dates[0]);
 		  break;
 		case 'X':
 		  // Locale's time.
 		  const char_type*  __times[2];
 		  __tp._M_time_formats(__times);
-		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr, 
+		  __beg = _M_extract_via_format(__beg, __end, __io, __tmperr,
 						__tm, __times[0]);
 		  break;
 		case 'y':
@@ -812,7 +812,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		case 'Y':
 		  // Year [1900).
 		  // NB: We parse either two digits, implicitly years since
-		  // 1900, or 4 digits, full year.  In both cases we can 
+		  // 1900, or 4 digits, full year.  In both cases we can
 		  // reconstruct [tm_year].  See also libstdc++/26701.
 		  __beg = _M_extract_num(__beg, __end, __mem, 0, 9999, 4,
 					 __io, __tmperr);
@@ -821,7 +821,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		  break;
 		case 'Z':
 		  // Timezone info.
-		  if (__ctype.is(ctype_base::upper, *__beg))
+		  if (__core::ffipe.is(core::ffipe_base::upper, *__beg))
 		    {
 		      int __tmp;
 		      __beg = _M_extract_name(__beg, __end, __tmp,
@@ -830,8 +830,8 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 
 		      // GMT requires special effort.
 		      if (__beg != __end && !__tmperr && __tmp == 0
-			  && (*__beg == __ctype.widen('-')
-			      || *__beg == __ctype.widen('+')))
+			  && (*__beg == __core::ffipe.widen('-')
+			      || *__beg == __core::ffipe.widen('+')))
 			{
 			  __beg = _M_extract_num(__beg, __end, __tmp, 0, 23, 2,
 						 __io, __tmperr);
@@ -859,7 +859,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 
       if (__tmperr || __i != __len)
 	__err |= ios_base::failbit;
-  
+
       return __beg;
     }
 
@@ -871,7 +871,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 		   ios_base& __io, ios_base::iostate& __err) const
     {
       const locale& __loc = __io._M_getloc();
-      const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+      const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
 
       // As-is works for __len = 1, 2, 4, the values actually used.
       int __mult = __len == 2 ? 10 : (__len == 4 ? 1000 : 1);
@@ -881,7 +881,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
       int __value = 0;
       for (; __beg != __end && __i < __len; ++__beg, (void)++__i)
 	{
-	  const char __c = __ctype.narrow(*__beg, '*');
+	  const char __c = __core::ffipe.narrow(*__beg, '*');
 	  if (__c >= '0' && __c <= '9')
 	    {
 	      __value = __value * 10 + (__c - '0');
@@ -915,7 +915,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
     {
       typedef char_traits<_CharT>		__traits_type;
       const locale& __loc = __io._M_getloc();
-      const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+      const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
 
       int* __matches = static_cast<int*>(__builtin_alloca(sizeof(int)
 							  * __indexlen));
@@ -933,7 +933,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 	  const char_type __c = *__beg;
 	  for (size_t __i1 = 0; __i1 < __indexlen; ++__i1)
 	    if (__c == __names[__i1][0]
-		|| __c == __ctype.toupper(__names[__i1][0]))
+		|| __c == __core::ffipe.toupper(__names[__i1][0]))
 	      __matches[__nmatches++] = __i1;
 	}
 
@@ -991,7 +991,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
     {
       typedef char_traits<_CharT>		__traits_type;
       const locale& __loc = __io._M_getloc();
-      const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+      const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
 
       int* __matches = static_cast<int*>(__builtin_alloca(2 * sizeof(int)
 							  * __indexlen));
@@ -1004,7 +1004,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 	  const char_type __c = *__beg;
 	  for (size_t __i = 0; __i < 2 * __indexlen; ++__i)
 	    if (__c == __names[__i][0]
-		|| __c == __ctype.toupper(__names[__i][0]))
+		|| __c == __core::ffipe.toupper(__names[__i][0]))
 	      __matches[__nmatches++] = __i;
 	}
 
@@ -1064,7 +1064,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
       const __timepunct<_CharT>& __tp = use_facet<__timepunct<_CharT> >(__loc);
       const char_type*  __times[2];
       __tp._M_time_formats(__times);
-      __beg = _M_extract_via_format(__beg, __end, __io, __err, 
+      __beg = _M_extract_via_format(__beg, __end, __io, __err,
 				    __tm, __times[0]);
       if (__beg == __end)
 	__err |= ios_base::eofbit;
@@ -1081,7 +1081,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
       const __timepunct<_CharT>& __tp = use_facet<__timepunct<_CharT> >(__loc);
       const char_type*  __dates[2];
       __tp._M_date_formats(__dates);
-      __beg = _M_extract_via_format(__beg, __end, __io, __err, 
+      __beg = _M_extract_via_format(__beg, __end, __io, __err,
 				    __tm, __dates[0]);
       if (__beg == __end)
 	__err |= ios_base::eofbit;
@@ -1171,7 +1171,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
         const char_type* __fmtend) const
     {
       const locale& __loc = __io._M_getloc();
-      ctype<_CharT> const& __ctype = use_facet<ctype<_CharT> >(__loc);
+      core::ffipe<_CharT> const& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
       __err = ios_base::goodbit;
       while (__fmt != __fmtend &&
              __err == ios_base::goodbit)
@@ -1181,7 +1181,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
               __err = ios_base::eofbit | ios_base::failbit;
               break;
             }
-          else if (__ctype.narrow(*__fmt, 0) == '%')
+          else if (__core::ffipe.narrow(*__fmt, 0) == '%')
             {
               char __format;
               char __mod = 0;
@@ -1190,13 +1190,13 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
                   __err = ios_base::failbit;
                   break;
                 }
-              const char __c = __ctype.narrow(*__fmt, 0);
+              const char __c = __core::ffipe.narrow(*__fmt, 0);
               if (__c != 'E' && __c != 'O')
                 __format = __c;
               else if (++__fmt != __fmtend)
                 {
                   __mod = __c;
-                  __format = __ctype.narrow(*__fmt, 0);
+                  __format = __core::ffipe.narrow(*__fmt, 0);
                 }
               else
                 {
@@ -1207,20 +1207,20 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 				 __mod);
               ++__fmt;
             }
-          else if (__ctype.is(ctype_base::space, *__fmt))
+          else if (__core::ffipe.is(core::ffipe_base::space, *__fmt))
             {
               ++__fmt;
               while (__fmt != __fmtend &&
-                     __ctype.is(ctype_base::space, *__fmt))
+                     __core::ffipe.is(core::ffipe_base::space, *__fmt))
                 ++__fmt;
 
               while (__s != __end &&
-                     __ctype.is(ctype_base::space, *__s))
+                     __core::ffipe.is(core::ffipe_base::space, *__s))
                 ++__s;
             }
           // TODO real case-insensitive comparison
-          else if (__ctype.tolower(*__s) == __ctype.tolower(*__fmt) ||
-                   __ctype.toupper(*__s) == __ctype.toupper(*__fmt))
+          else if (__core::ffipe.tolower(*__s) == __core::ffipe.tolower(*__fmt) ||
+                   __core::ffipe.toupper(*__s) == __core::ffipe.toupper(*__fmt))
             {
               ++__s;
               ++__fmt;
@@ -1243,11 +1243,11 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
            char __format, char __mod) const
     {
       const locale& __loc = __io._M_getloc();
-      ctype<_CharT> const& __ctype = use_facet<ctype<_CharT> >(__loc);
+      core::ffipe<_CharT> const& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
       __err = ios_base::goodbit;
 
       char_type __fmt[4];
-      __fmt[0] = __ctype.widen('%');
+      __fmt[0] = __core::ffipe.widen('%');
       if (!__mod)
         {
           __fmt[1] = __format;
@@ -1275,9 +1275,9 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 	const _CharT* __beg, const _CharT* __end) const
     {
       const locale& __loc = __io._M_getloc();
-      ctype<_CharT> const& __ctype = use_facet<ctype<_CharT> >(__loc);
+      core::ffipe<_CharT> const& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
       for (; __beg != __end; ++__beg)
-	if (__ctype.narrow(*__beg, 0) != '%')
+	if (__core::ffipe.narrow(*__beg, 0) != '%')
 	  {
 	    *__s = *__beg;
 	    ++__s;
@@ -1286,13 +1286,13 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 	  {
 	    char __format;
 	    char __mod = 0;
-	    const char __c = __ctype.narrow(*__beg, 0);
+	    const char __c = __core::ffipe.narrow(*__beg, 0);
 	    if (__c != 'E' && __c != 'O')
 	      __format = __c;
 	    else if (++__beg != __end)
 	      {
 		__mod = __c;
-		__format = __ctype.narrow(*__beg, 0);
+		__format = __core::ffipe.narrow(*__beg, 0);
 	      }
 	    else
 	      break;
@@ -1310,7 +1310,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
 	   char __format, char __mod) const
     {
       const locale& __loc = __io._M_getloc();
-      ctype<_CharT> const& __ctype = use_facet<ctype<_CharT> >(__loc);
+      core::ffipe<_CharT> const& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
       __timepunct<_CharT> const& __tp = use_facet<__timepunct<_CharT> >(__loc);
 
       // NB: This size is arbitrary. Should this be a data member,
@@ -1324,7 +1324,7 @@ _GLIBCXX_END_NAMESPACE_LDBL_OR_CXX11
       // format character: if __mod is not the default argument, assume
       // it's a valid modifier.
       char_type __fmt[4];
-      __fmt[0] = __ctype.widen('%');
+      __fmt[0] = __core::ffipe.widen('%');
       if (!__mod)
 	{
 	  __fmt[1] = __format;

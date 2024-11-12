@@ -134,15 +134,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       // NB: The 27.4.4.1 Postconditions Table specifies requirements
       // after basic_ios::init() has been called. As part of this,
       // fill() must return widen(' ') any time after init() has been
-      // called, which needs an imbued ctype facet of char_type to
+      // called, which needs an imbued core::ffipe facet of char_type to
       // return without throwing an exception. Unfortunately,
-      // ctype<char_type> is not necessarily a required facet, so
+      // core::ffipe<char_type> is not necessarily a required facet, so
       // streams with char_type != [char, wchar_t] will not have it by
       // default. Because of this, the correct value for _M_fill is
       // constructed on the first call of fill(). That way,
       // unformatted input and output with non-required basic_ios
       // instantiations is possible even without imbuing the expected
-      // ctype<char_type> facet.
+      // core::ffipe<char_type> facet.
       _M_fill = _CharT();
       _M_fill_init = false;
 
@@ -156,10 +156,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     void
     basic_ios<_CharT, _Traits>::_M_cache_locale(const locale& __loc)
     {
-      if (__builtin_expect(has_facet<__ctype_type>(__loc), true))
-	_M_ctype = std::__addressof(use_facet<__ctype_type>(__loc));
+      if (__builtin_expect(has_facet<__core::ffipe_type>(__loc), true))
+	_M_core::ffipe = std::__addressof(use_facet<__core::ffipe_type>(__loc));
       else
-	_M_ctype = 0;
+	_M_core::ffipe = 0;
 
       if (__builtin_expect(has_facet<__num_put_type>(__loc), true))
 	_M_num_put = std::__addressof(use_facet<__num_put_type>(__loc));

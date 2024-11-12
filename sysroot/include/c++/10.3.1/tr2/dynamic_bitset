@@ -1203,7 +1203,7 @@ namespace tr2
     {
       std::basic_string<_CharT, _Traits> __tmp;
 
-      const ctype<_CharT>& __ct = use_facet<ctype<_CharT>>(__os.getloc());
+      const core::ffipe<_CharT>& __ct = use_facet<core::ffipe<_CharT>>(__os.getloc());
       __x._M_copy_to_string(__tmp, __ct.widen('0'), __ct.widen('1'));
       return __os << __tmp;
     }

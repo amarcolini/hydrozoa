@@ -1,0 +1,38 @@
+[package]
+name = "wasm3"
+version = "0.5.0"
+authors = ["Lukas Tobias Wirth <lukastw97@gmail.com>"]
+edition = "2018"
+description = "Rust bindings for wasm3"
+homepage = "https://github.com/wasm3/wasm3-rs"
+repository = "https://github.com/wasm3/wasm3-rs"
+license = "MIT"
+readme = "README.md"
+categories = ["api-bindings"]
+exclude = ["examples/*", "tests/*"]
+
+[features]
+default = ["use-32bit-slots"]
+
+# wasi = ["ffi/wasi"]
+# std = []
+use-32bit-slots = ["ffi/use-32bit-slots"]
+
+build-bindgen = ["ffi/build-bindgen"]
+
+[dependencies]
+snafu = { version = "0.8.5", default-features = false, features = [
+    "unstable-core-error",
+    "rust_1_81",
+] }
+
+[dependencies.ffi]
+version = "0.5.0"
+path = "../wasm3-sys"
+package = "wasm3-sys"
+
+[dev-dependencies]
+trybuild = "1.0"
+
+[package.metadata.docs.rs]
+all-features = true

@@ -62,7 +62,7 @@ namespace tr1
 	    {
 	      static const _Tp __q = __m / __a;
 	      static const _Tp __r = __m % __a;
-	      
+
 	      _Tp __t1 = __a * (__x % __q);
 	      _Tp __t2 = __r * (__x / __q);
 	      if (__t1 >= __t2)
@@ -107,7 +107,7 @@ namespace tr1
     linear_congruential<_UIntType, __a, __c, __m>::modulus;
 
   /**
-   * Seeds the LCR with integral value @p __x0, adjusted so that the 
+   * Seeds the LCR with integral value @p __x0, adjusted so that the
    * ring identity is never a member of the convergence set.
    */
   template<class _UIntType, _UIntType __a, _UIntType __c, _UIntType __m>
@@ -188,7 +188,7 @@ namespace tr1
 
       __is.flags(__flags);
       return __is;
-    } 
+    }
 
 
   template<class _UIntType, int __w, int __n, int __m, int __r,
@@ -204,7 +204,7 @@ namespace tr1
     const int
     mersenne_twister<_UIntType, __w, __n, __m, __r, __a, __u, __s,
 		     __b, __t, __c, __l>::state_size;
-    
+
   template<class _UIntType, int __w, int __n, int __m, int __r,
 	   _UIntType __a, int __u, int __s,
 	   _UIntType __b, int __t, _UIntType __c, int __l>
@@ -286,7 +286,7 @@ namespace tr1
 	  __x *= 1812433253ul;
 	  __x += __i;
 	  _M_x[__i] = __detail::__mod<_UIntType, 1, 0,
-	    __detail::_Shift<_UIntType, __w>::__value>(__x);	  
+	    __detail::_Shift<_UIntType, __w>::__value>(__x);
 	}
       _M_p = state_size;
     }
@@ -631,7 +631,7 @@ namespace tr1
 	__new_carry = 0;
       else
 	__new_carry = 1;
-      
+
       _M_x[_M_p][__n - 1] = __detail::__mod<_UInt32Type, 1, 0,
 	__detail::_Shift<_UInt32Type, __w % 32>::__value>
 	(_M_x[__ps][__n - 1] - _M_x[_M_p][__n - 1] - _M_carry);
@@ -769,7 +769,7 @@ namespace tr1
     const int
     xor_combine<_UniformRandomNumberGenerator1, __s1,
 		_UniformRandomNumberGenerator2, __s2>::shift1;
-     
+
   template<class _UniformRandomNumberGenerator1, int __s1,
 	   class _UniformRandomNumberGenerator2, int __s2>
     const int
@@ -859,7 +859,7 @@ namespace tr1
 
       __os.flags(__flags);
       __os.fill(__fill);
-      return __os; 
+      return __os;
     }
 
   template<class _UniformRandomNumberGenerator1, int __s1,
@@ -900,15 +900,15 @@ namespace tr1
 	                                                      __utype;
 	typedef typename __gnu_cxx::__conditional_type<(sizeof(__urntype)
 							> sizeof(__utype)),
-	  __urntype, __utype>::__type                         __uctype;
+	  __urntype, __utype>::__type                         __ucore::ffipe;
 
 	result_type __ret;
 
 	const __urntype __urnmin = __urng.min();
 	const __urntype __urnmax = __urng.max();
 	const __urntype __urnrange = __urnmax - __urnmin;
-	const __uctype __urange = __max - __min;
-	const __uctype __udenom = (__urnrange <= __urange
+	const __ucore::ffipe __urange = __max - __min;
+	const __ucore::ffipe __udenom = (__urnrange <= __urange
 				   ? 1 : __urnrange / (__urange + 1));
 	do
 	  __ret = (__urntype(__urng()) -  __urnmin) / __udenom;
@@ -955,7 +955,7 @@ namespace tr1
       return __is;
     }
 
-  
+
   template<typename _CharT, typename _Traits>
     std::basic_ostream<_CharT, _Traits>&
     operator<<(std::basic_ostream<_CharT, _Traits>& __os,
@@ -1088,7 +1088,7 @@ namespace tr1
 	    // sqrt(pi / 2)
 	    const _RealType __spi_2 = 1.2533141373155002512078826424055226L;
 	    const _RealType __c1 = _M_sm * __spi_2;
-	    const _RealType __c2 = _M_c2b + __c1; 
+	    const _RealType __c2 = _M_c2b + __c1;
 	    const _RealType __c3 = __c2 + 1;
 	    const _RealType __c4 = __c3 + 1;
 	    // e^(1 / 78)
@@ -1104,7 +1104,7 @@ namespace tr1
 		const _RealType __e = -std::log(__urng());
 
 		_RealType __w = 0.0;
-		
+
 		if (__u <= __c1)
 		  {
 		    const _RealType __n = _M_nd(__urng);
@@ -1226,7 +1226,7 @@ namespace tr1
 	  const _RealType __np = std::floor(_M_t * __p12);
 	  const _RealType __pa = __np / _M_t;
 	  const _RealType __1p = 1 - __pa;
-	  
+
 	  const _RealType __pi_4 = 0.7853981633974483096156608458198757L;
 	  const _RealType __d1x =
 	    std::sqrt(__np * __1p * std::log(32 * __np
@@ -1236,7 +1236,7 @@ namespace tr1
 	    std::sqrt(__np * __1p * std::log(32 * _M_t * __1p
 					     / (__pi_4 * __pa)));
 	  _M_d2 = std::tr1::round(std::max(_RealType(1), __d2x));
-	  
+
 	  // sqrt(pi / 2)
 	  const _RealType __spi_2 = 1.2533141373155002512078826424055226L;
 	  _M_s1 = std::sqrt(__np * __1p) * (1 + _M_d1 / (4 * __np));
@@ -1356,7 +1356,7 @@ namespace tr1
 		  }
 		else if (__u <= __a123)
 		  {
-		    const _RealType __e1 = -std::log(__urng());		    
+		    const _RealType __e1 = -std::log(__urng());
 		    const _RealType __e2 = -std::log(__urng());
 
 		    const _RealType __y = _M_d1 + 2 * __s1s * __e1 / _M_d1;
@@ -1367,7 +1367,7 @@ namespace tr1
 		  }
 		else
 		  {
-		    const _RealType __e1 = -std::log(__urng());		    
+		    const _RealType __e1 = -std::log(__urng());
 		    const _RealType __e2 = -std::log(__urng());
 
 		    const _RealType __y = _M_d2 + 2 * __s2s * __e1 / _M_d2;
@@ -1391,7 +1391,7 @@ namespace tr1
 
 	    __x += __np + __naf;
 
-	    const _IntType __z = _M_waiting(__urng, _M_t - _IntType(__x)); 
+	    const _IntType __z = _M_waiting(__urng, _M_t - _IntType(__x));
 	    __ret = _IntType(__x) + __z;
 	  }
 	else
@@ -1420,7 +1420,7 @@ namespace tr1
       __os.fill(__space);
       __os.precision(__gnu_cxx::__numeric_traits<_RealType>::__max_digits10);
 
-      __os << __x.t() << __space << __x.p() 
+      __os << __x.t() << __space << __x.p()
 	   << __space << __x._M_nd;
 
       __os.flags(__flags);
@@ -1550,7 +1550,7 @@ namespace tr1
 	    _M_saved_available = true;
 	    __ret = __y * __mult;
 	  }
-	
+
 	__ret = __ret * _M_sigma + _M_mean;
 	return __ret;
       }

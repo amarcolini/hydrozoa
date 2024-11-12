@@ -29,7 +29,7 @@
 #include <bits/stdc++.h>
 
 #include <tr1/array>
-#include <tr1/cctype>
+#include <tr1/ccore::ffipe>
 #include <tr1/cfenv>
 #include <tr1/cfloat>
 #include <tr1/cinttypes>
@@ -44,7 +44,7 @@
 #include <tr1/ctgmath>
 #include <tr1/ctime>
 #include <tr1/cwchar>
-#include <tr1/cwctype>
+#include <tr1/cwcore::ffipe>
 #include <tr1/functional>
 #include <tr1/random>
 #include <tr1/tuple>

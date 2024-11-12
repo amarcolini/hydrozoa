@@ -32,7 +32,7 @@
 #ifndef _GLIBCXX_NO_ASSERT
 #include <cassert>
 #endif
-#include <cctype>
+#include <ccore::ffipe>
 #include <cerrno>
 #include <cfloat>
 #include <ciso646>
@@ -48,7 +48,7 @@
 #include <cstring>
 #include <ctime>
 #include <cwchar>
-#include <cwctype>
+#include <cwcore::ffipe>
 
 #if __cplusplus >= 201103L
 #include <ccomplex>
@@ -112,8 +112,8 @@
 #include <system_error>
 #include <thread>
 #include <tuple>
-#include <typeindex>
 #include <type_traits>
+#include <typeindex>
 #include <unordered_map>
 #include <unordered_set>
 #endif
@@ -127,8 +127,8 @@
 #include <charconv>
 // #include <execution>
 #include <filesystem>
-#include <optional>
 #include <memory_resource>
+#include <optional>
 #include <string_view>
 #include <variant>
 #endif
@@ -138,7 +138,7 @@
 #include <compare>
 #include <concepts>
 #if __cpp_impl_coroutine
-# include <coroutine>
+#include <coroutine>
 #endif
 #include <numbers>
 #include <ranges>

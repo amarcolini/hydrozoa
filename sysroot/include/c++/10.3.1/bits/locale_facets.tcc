@@ -106,7 +106,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  _M_decimal_point = __np.decimal_point();
 	  _M_thousands_sep = __np.thousands_sep();
 
-	  const ctype<_CharT>& __ct = use_facet<ctype<_CharT> >(__loc);
+	  const core::ffipe<_CharT>& __ct = use_facet<core::ffipe<_CharT> >(__loc);
 	  __ct.widen(__num_base::_S_atoms_out,
 		     __num_base::_S_atoms_out
 		     + __num_base::_S_oend, _M_atoms_out);
@@ -227,14 +227,14 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 		__xtrc += '.';
 		__found_dec = true;
 	      }
-	    else if ((__c == __lit[__num_base::_S_ie] 
+	    else if ((__c == __lit[__num_base::_S_ie]
 		      || __c == __lit[__num_base::_S_iE])
 		     && !__found_sci && __found_mantissa)
 	      {
 		// Scientific notation.
 		__xtrc += 'e';
 		__found_sci = true;
-		
+
 		// Remove optional plus or minus sign, if they exist.
 		if (++__beg != __end)
 		  {
@@ -311,7 +311,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 		    __found_mantissa = true;
 		    ++__sep_pos;
 		  }
-		else if ((__c == __lit[__num_base::_S_ie] 
+		else if ((__c == __lit[__num_base::_S_ie]
 			  || __c == __lit[__num_base::_S_iE])
 			 && !__found_sci && __found_mantissa)
 		  {
@@ -320,7 +320,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 		      __found_grouping += static_cast<char>(__sep_pos);
 		    __xtrc += 'e';
 		    __found_sci = true;
-		    
+
 		    // Remove optional plus or minus sign, if they exist.
 		    if (++__beg != __end)
 		      {
@@ -343,7 +343,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 		else
 		  break;
 	      }
-	    
+
 	    if (++__beg != __end)
 	      __c = *__beg;
 	    else
@@ -358,7 +358,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 	  if (!__found_dec && !__found_sci)
 	    __found_grouping += static_cast<char>(__sep_pos);
 
-          if (!std::__verify_grouping(__lc->_M_grouping, 
+          if (!std::__verify_grouping(__lc->_M_grouping,
 				      __lc->_M_grouping_size,
 				      __found_grouping))
 	    __err = ios_base::failbit;
@@ -420,7 +420,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 	    if ((__lc->_M_use_grouping && __c == __lc->_M_thousands_sep)
 		|| __c == __lc->_M_decimal_point)
 	      break;
-	    else if (__c == __lit[__num_base::_S_izero] 
+	    else if (__c == __lit[__num_base::_S_izero]
 		     && (!__found_zero || __base == 10))
 	      {
 		__found_zero = true;
@@ -456,7 +456,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 	    else
 	      __testeof = true;
 	  }
-	
+
 	// At this point, base is determined. If not hex, only allow
 	// base digits as valid input.
 	const size_t __len = (__base == 16 ? __num_base::_S_iend
@@ -485,7 +485,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 	      __digit = _M_find(__lit_zero, __len, __c);
 	      if (__digit == -1)
 		break;
-	      
+
 	      if (__result > __smax)
 		__testoverflow = true;
 	      else
@@ -495,7 +495,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 		  __result += __digit;
 		  ++__sep_pos;
 		}
-	      
+
 	      if (++__beg != __end)
 		__c = *__beg;
 	      else
@@ -529,7 +529,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 		    __traits_type::find(__lit_zero, __len, __c);
 		  if (!__q)
 		    break;
-		  
+
 		  __digit = __q - __lit_zero;
 		  if (__digit > 15)
 		    __digit -= 6;
@@ -543,13 +543,13 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 		      ++__sep_pos;
 		    }
 		}
-	      
+
 	      if (++__beg != __end)
 		__c = *__beg;
 	      else
 		__testeof = true;
 	    }
-	
+
 	// Digit grouping is checked. If grouping and found_grouping don't
 	// match, then get very very upset, and set failbit.
 	if (__found_grouping.size())
@@ -760,7 +760,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 
       typedef __gnu_cxx::__conditional_type<(sizeof(void*)
 					     <= sizeof(unsigned long)),
-	unsigned long, unsigned long long>::__type _UIntPtrType;       
+	unsigned long, unsigned long long>::__type _UIntPtrType;
 
       _UIntPtrType __ul;
       __beg = _M_extract_int(__beg, __end, __io, __err, __ul);
@@ -843,7 +843,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 					__grouping_size, __cs, __cs + __len);
       __len = __p - __new;
     }
-  
+
   template<typename _CharT, typename _OutIter>
     template<typename _ValueT>
       _OutIter
@@ -1035,18 +1035,18 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 	const int __cs_size = __fixed ? __max_exp + __prec + 4
 	                              : __max_digits * 2 + __prec;
 	char* __cs = static_cast<char*>(__builtin_alloca(__cs_size));
-	__len = std::__convert_from_v(_S_get_c_locale(), __cs, 0, __fbuf, 
+	__len = std::__convert_from_v(_S_get_c_locale(), __cs, 0, __fbuf,
 				      __prec, __v);
 #endif
 
 	// [22.2.2.2.2] Stage 2, convert to char_type, using correct
 	// numpunct.decimal_point() values for '.' and adding grouping.
-	const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
-	
+	const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
+
 	_CharT* __ws = static_cast<_CharT*>(__builtin_alloca(sizeof(_CharT)
 							     * __len));
-	__ctype.widen(__cs, __cs + __len, __ws);
-	
+	__core::ffipe.widen(__cs, __cs + __len, __ws);
+
 	// Replace decimal point.
 	_CharT* __wp = 0;
 	const char* __p = char_traits<char>::find(__cs, __len, '.');
@@ -1055,7 +1055,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 	    __wp = __ws + (__p - __cs);
 	    *__wp = __lc->_M_decimal_point;
 	  }
-	
+
 	// Add grouping, if necessary.
 	// N.B. Make sure to not group things like 2e20, i.e., no decimal
 	// point, scientific notation.
@@ -1067,7 +1067,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 	    // number of digits, but no more.
 	    _CharT* __ws2 = static_cast<_CharT*>(__builtin_alloca(sizeof(_CharT)
 								  * __len * 2));
-	    
+
 	    streamsize __off = 0;
 	    if (__cs[0] == '-' || __cs[0] == '+')
 	      {
@@ -1075,12 +1075,12 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 		__ws2[0] = __ws[0];
 		__len -= 1;
 	      }
-	    
+
 	    _M_group_float(__lc->_M_grouping, __lc->_M_grouping_size,
 			   __lc->_M_thousands_sep, __wp, __ws2 + __off,
 			   __ws + __off, __len);
 	    __len += __off;
-	    
+
 	    __ws = __ws2;
 	  }
 
@@ -1094,12 +1094,12 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 	    __ws = __ws3;
 	  }
 	__io.width(0);
-	
+
 	// [22.2.2.2.2] Stage 4.
 	// Write resulting, fully-formatted string to output iterator.
 	return std::__write(__s, __ws, __len);
       }
-  
+
   template<typename _CharT, typename _OutIter>
     _OutIter
     num_put<_CharT, _OutIter>::
@@ -1186,7 +1186,7 @@ _GLIBCXX_BEGIN_NAMESPACE_LDBL
 
       typedef __gnu_cxx::__conditional_type<(sizeof(const void*)
 					     <= sizeof(unsigned long)),
-	unsigned long, unsigned long long>::__type _UIntPtrType;       
+	unsigned long, unsigned long long>::__type _UIntPtrType;
 
       __s = _M_insert_int(__s, __io, __fill,
 			  reinterpret_cast<_UIntPtrType>(__v));
@@ -1227,19 +1227,19 @@ _GLIBCXX_END_NAMESPACE_LDBL
 	  // Pad after 0[xX], if there is one.
 	  // Who came up with these rules, anyway? Jeeze.
           const locale& __loc = __io._M_getloc();
-	  const ctype<_CharT>& __ctype = use_facet<ctype<_CharT> >(__loc);
+	  const core::ffipe<_CharT>& __core::ffipe = use_facet<core::ffipe<_CharT> >(__loc);
 
-	  if (__ctype.widen('-') == __olds[0]
-	      || __ctype.widen('+') == __olds[0])
+	  if (__core::ffipe.widen('-') == __olds[0]
+	      || __core::ffipe.widen('+') == __olds[0])
 	    {
 	      __news[0] = __olds[0];
 	      __mod = 1;
 	      ++__news;
 	    }
-	  else if (__ctype.widen('0') == __olds[0]
+	  else if (__core::ffipe.widen('0') == __olds[0]
 		   && __oldlen > 1
-		   && (__ctype.widen('x') == __olds[1]
-		       || __ctype.widen('X') == __olds[1]))
+		   && (__core::ffipe.widen('x') == __olds[1]
+		       || __core::ffipe.widen('X') == __olds[1]))
 	    {
 	      __news[0] = __olds[0];
 	      __news[1] = __olds[1];
@@ -1274,14 +1274,14 @@ _GLIBCXX_END_NAMESPACE_LDBL
 
       while (__ctr--)
 	{
-	  *__s++ = __sep;	  
+	  *__s++ = __sep;
 	  for (char __i = __gbeg[__idx]; __i > 0; --__i)
 	    *__s++ = *__first++;
 	}
 
       while (__idx--)
 	{
-	  *__s++ = __sep;	  
+	  *__s++ = __sep;
 	  for (char __i = __gbeg[__idx]; __i > 0; --__i)
 	    *__s++ = *__first++;
 	}
@@ -1296,11 +1296,11 @@ _GLIBCXX_END_NAMESPACE_LDBL
   extern template class _GLIBCXX_NAMESPACE_CXX11 numpunct_byname<char>;
   extern template class _GLIBCXX_NAMESPACE_LDBL num_get<char>;
   extern template class _GLIBCXX_NAMESPACE_LDBL num_put<char>;
-  extern template class ctype_byname<char>;
+  extern template class core::ffipe_byname<char>;
 
   extern template
-    const ctype<char>&
-    use_facet<ctype<char> >(const locale&);
+    const core::ffipe<char>&
+    use_facet<core::ffipe<char> >(const locale&);
 
   extern template
     const numpunct<char>&
@@ -1316,7 +1316,7 @@ _GLIBCXX_END_NAMESPACE_LDBL
 
   extern template
     bool
-    has_facet<ctype<char> >(const locale&);
+    has_facet<core::ffipe<char> >(const locale&);
 
   extern template
     bool
@@ -1335,11 +1335,11 @@ _GLIBCXX_END_NAMESPACE_LDBL
   extern template class _GLIBCXX_NAMESPACE_CXX11 numpunct_byname<wchar_t>;
   extern template class _GLIBCXX_NAMESPACE_LDBL num_get<wchar_t>;
   extern template class _GLIBCXX_NAMESPACE_LDBL num_put<wchar_t>;
-  extern template class ctype_byname<wchar_t>;
+  extern template class core::ffipe_byname<wchar_t>;
 
   extern template
-    const ctype<wchar_t>&
-    use_facet<ctype<wchar_t> >(const locale&);
+    const core::ffipe<wchar_t>&
+    use_facet<core::ffipe<wchar_t> >(const locale&);
 
   extern template
     const numpunct<wchar_t>&
@@ -1355,7 +1355,7 @@ _GLIBCXX_END_NAMESPACE_LDBL
 
  extern template
     bool
-    has_facet<ctype<wchar_t> >(const locale&);
+    has_facet<core::ffipe<wchar_t> >(const locale&);
 
   extern template
     bool

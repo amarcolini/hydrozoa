@@ -1,9 +1,19 @@
 [workspace]
 members = ["packages/*"]
+default-members = [
+    "packages/runtime",
+    "packages/startup",
+    "packages/wasm3",
+    "packages/wasm3-sys",
+]
 exclude = ["wasm3-rs"]
 resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[profile.release]
+debug = true
+lto = true
 
 [workspace.dependencies]
 vex-sdk = "0.23.0"

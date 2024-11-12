@@ -240,7 +240,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     constexpr size_t
     mersenne_twister_engine<_UIntType, __w, __n, __m, __r, __a, __u, __d,
 			    __s, __b, __t, __c, __l, __f>::tempering_u;
-   
+
   template<typename _UIntType,
 	   size_t __w, size_t __n, size_t __m, size_t __r,
 	   _UIntType __a, size_t __u, _UIntType __d, size_t __s,
@@ -744,11 +744,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       const unsigned __m = __r ? std::__lg(__r) : __edig;
 
       typedef typename std::common_type<_Eresult_type, result_type>::type
-	__ctype;
-      const unsigned __cdig = std::numeric_limits<__ctype>::digits;
+	__core::ffipe;
+      const unsigned __cdig = std::numeric_limits<__core::ffipe>::digits;
 
       unsigned __n, __n0;
-      __ctype __s0, __s1, __y0, __y1;
+      __core::ffipe __s0, __s1, __y0, __y1;
 
       for (size_t __i = 0; __i < 2; ++__i)
 	{
@@ -760,7 +760,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  __s1 = 0;
 	  if (__w0 < __cdig)
 	    {
-	      __s0 = __ctype(1) << __w0;
+	      __s0 = __core::ffipe(1) << __w0;
 	      __s1 = __s0 << 1;
 	    }
 
@@ -782,7 +782,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       result_type __sum = 0;
       for (size_t __k = 0; __k < __n0; ++__k)
 	{
-	  __ctype __u;
+	  __core::ffipe __u;
 	  do
 	    __u = _M_b() - _M_b.min();
 	  while (__y0 && __u >= __y0);
@@ -790,7 +790,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	}
       for (size_t __k = __n0; __k < __n; ++__k)
 	{
-	  __ctype __u;
+	  __core::ffipe __u;
 	  do
 	    __u = _M_b() - _M_b.min();
 	  while (__y1 && __u >= __y1);
@@ -1127,7 +1127,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       {
 	typedef typename std::gamma_distribution<double>::param_type
 	  param_type;
-	
+
 	const double __y =
 	  _M_gd(__urng, param_type(__p.k(), (1.0 - __p.p()) / __p.p()));
 
@@ -2333,7 +2333,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    do
 	      {
 		__n = _M_nd(__urng);
-		__v = result_type(1.0) + __param._M_a2 * __n; 
+		__v = result_type(1.0) + __param._M_a2 * __n;
 	      }
 	    while (__v <= 0.0);
 
@@ -2351,7 +2351,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    do
 	      __u = __aurng();
 	    while (__u == 0.0);
-	    
+
 	    return (std::pow(__u, result_type(1.0) / __param.alpha())
 		    * __a1 * __v * __param.beta());
 	  }
@@ -3023,7 +3023,7 @@ namespace __detail
       //  Now normalize the densities...
       __detail::__normalize(_M_den.begin(), _M_den.end(), _M_den.begin(),
 			    __sum);
-      //  ... and partial sums... 
+      //  ... and partial sums...
       __detail::__normalize(_M_cp.begin(), _M_cp.end(), _M_cp.begin(), __sum);
       //  ... and slopes.
       __detail::__normalize(_M_m.begin(), _M_m.end(), _M_m.begin(), __sum);

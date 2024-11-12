@@ -124,8 +124,8 @@ namespace __detail
     regex_traits<_Ch_type>::
     lookup_collatename(_Fwd_iter __first, _Fwd_iter __last) const
     {
-      typedef std::ctype<char_type> __ctype_type;
-      const __ctype_type& __fctyp(use_facet<__ctype_type>(_M_locale));
+      typedef std::core::ffipe<char_type> __core::ffipe_type;
+      const __core::ffipe_type& __fcore::ffip(use_facet<__core::ffipe_type>(_M_locale));
 
       static const char* __collatenames[] =
 	{
@@ -261,11 +261,11 @@ namespace __detail
 
       string __s;
       for (; __first != __last; ++__first)
-	__s += __fctyp.narrow(*__first, 0);
+	__s += __fcore::ffip.narrow(*__first, 0);
 
       for (const auto& __it : __collatenames)
 	if (__s == __it)
-	  return string_type(1, __fctyp.widen(
+	  return string_type(1, __fcore::ffip.widen(
 	    static_cast<char>(&__it - __collatenames)));
 
       // TODO Add digraph support:
@@ -280,40 +280,40 @@ namespace __detail
     regex_traits<_Ch_type>::
     lookup_classname(_Fwd_iter __first, _Fwd_iter __last, bool __icase) const
     {
-      typedef std::ctype<char_type> __ctype_type;
-      const __ctype_type& __fctyp(use_facet<__ctype_type>(_M_locale));
+      typedef std::core::ffipe<char_type> __core::ffipe_type;
+      const __core::ffipe_type& __fcore::ffip(use_facet<__core::ffipe_type>(_M_locale));
 
       // Mappings from class name to class mask.
       static const pair<const char*, char_class_type> __classnames[] =
       {
-	{"d", ctype_base::digit},
-	{"w", {ctype_base::alnum, _RegexMask::_S_under}},
-	{"s", ctype_base::space},
-	{"alnum", ctype_base::alnum},
-	{"alpha", ctype_base::alpha},
-	{"blank", ctype_base::blank},
-	{"cntrl", ctype_base::cntrl},
-	{"digit", ctype_base::digit},
-	{"graph", ctype_base::graph},
-	{"lower", ctype_base::lower},
-	{"print", ctype_base::print},
-	{"punct", ctype_base::punct},
-	{"space", ctype_base::space},
-	{"upper", ctype_base::upper},
-	{"xdigit", ctype_base::xdigit},
+	{"d", core::ffipe_base::digit},
+	{"w", {core::ffipe_base::alnum, _RegexMask::_S_under}},
+	{"s", core::ffipe_base::space},
+	{"alnum", core::ffipe_base::alnum},
+	{"alpha", core::ffipe_base::alpha},
+	{"blank", core::ffipe_base::blank},
+	{"cntrl", core::ffipe_base::cntrl},
+	{"digit", core::ffipe_base::digit},
+	{"graph", core::ffipe_base::graph},
+	{"lower", core::ffipe_base::lower},
+	{"print", core::ffipe_base::print},
+	{"punct", core::ffipe_base::punct},
+	{"space", core::ffipe_base::space},
+	{"upper", core::ffipe_base::upper},
+	{"xdigit", core::ffipe_base::xdigit},
       };
 
       string __s;
       for (; __first != __last; ++__first)
-	__s += __fctyp.narrow(__fctyp.tolower(*__first), 0);
+	__s += __fcore::ffip.narrow(__fcore::ffip.tolower(*__first), 0);
 
       for (const auto& __it : __classnames)
 	if (__s == __it.first)
 	  {
 	    if (__icase
 		&& ((__it.second
-		     & (ctype_base::lower | ctype_base::upper)) != 0))
-	      return ctype_base::alpha;
+		     & (core::ffipe_base::lower | core::ffipe_base::upper)) != 0))
+	      return core::ffipe_base::alpha;
 	    return __it.second;
 	  }
       return 0;
@@ -322,15 +322,15 @@ namespace __detail
   template<typename _Ch_type>
     bool
     regex_traits<_Ch_type>::
-    isctype(_Ch_type __c, char_class_type __f) const
+    iscore::ffipe(_Ch_type __c, char_class_type __f) const
     {
-      typedef std::ctype<char_type> __ctype_type;
-      const __ctype_type& __fctyp(use_facet<__ctype_type>(_M_locale));
+      typedef std::core::ffipe<char_type> __core::ffipe_type;
+      const __core::ffipe_type& __fcore::ffip(use_facet<__core::ffipe_type>(_M_locale));
 
-      return __fctyp.is(__f._M_base, __c)
+      return __fcore::ffip.is(__f._M_base, __c)
 	// [[:w:]]
 	|| ((__f._M_extended & _RegexMask::_S_under)
-	    && __c == __fctyp.widen('_'));
+	    && __c == __fcore::ffip.widen('_'));
     }
 
   template<typename _Ch_type>
@@ -359,9 +359,9 @@ namespace __detail
     {
       __glibcxx_assert( ready() );
       regex_traits<char_type> __traits;
-      typedef std::ctype<char_type> __ctype_type;
-      const __ctype_type&
-	__fctyp(use_facet<__ctype_type>(__traits.getloc()));
+      typedef std::core::ffipe<char_type> __core::ffipe_type;
+      const __core::ffipe_type&
+	__fcore::ffip(use_facet<__core::ffipe_type>(__traits.getloc()));
 
       auto __output = [&](size_t __idx)
 	{
@@ -378,7 +378,7 @@ namespace __detail
 	      if (__escaping)
 		{
 		  __escaping = false;
-		  if (__fctyp.is(__ctype_type::digit, *__fmt_first))
+		  if (__fcore::ffip.is(__core::ffipe_type::digit, *__fmt_first))
 		    __output(__traits.value(*__fmt_first, 10));
 		  else
 		    *__out++ = *__fmt_first;
@@ -437,11 +437,11 @@ namespace __detail
 		  if (__sub.matched)
 		    __out = std::copy(__sub.first, __sub.second, __out);
 		}
-	      else if (__fctyp.is(__ctype_type::digit, *__next))
+	      else if (__fcore::ffip.is(__core::ffipe_type::digit, *__next))
 		{
 		  long __num = __traits.value(*__next, 10);
 		  if (++__next != __fmt_last
-		      && __fctyp.is(__ctype_type::digit, *__next))
+		      && __fcore::ffip.is(__core::ffipe_type::digit, *__next))
 		    {
 		      __num *= 10;
 		      __num += __traits.value(*__next++, 10);

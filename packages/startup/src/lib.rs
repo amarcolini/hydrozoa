@@ -146,5 +146,5 @@ pub unsafe fn startup() {
     }
 
     // Print the banner
-    println!("vexide startup complete!");
+    // println!("multiv startup complete!");
 }
