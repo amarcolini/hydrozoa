@@ -2,10 +2,12 @@ use alloc::{
     borrow::{Cow, ToOwned},
     boxed::Box,
     ffi::CString,
+    string::{String, ToString},
     vec::Vec,
 };
 use core::{
     cell::UnsafeCell,
+    ffi::CStr,
     hash::Hash,
     marker::PhantomData,
     mem,
@@ -14,6 +16,7 @@ use core::{
     slice,
 };
 
+use ffi::M3ErrorInfo;
 use snafu::ensure;
 
 use crate::{
@@ -182,6 +185,18 @@ impl Store {
         let mut len: u32 = 0;
         let data = unsafe { ffi::m3_GetMemory(self.as_ptr(), &mut len, 0) };
         unsafe { slice::from_raw_parts_mut(data, len as usize) }
+    }
+
+    /// Returns a description of the last error that occurred in this runtime.
+    pub fn take_error_info(&mut self) -> Option<String> {
+        let mut info = unsafe { mem::zeroed() };
+        unsafe { ffi::m3_GetErrorInfo(self.as_ptr(), &mut info) };
+        if info.message.is_null() {
+            None
+        } else {
+            let message = unsafe { CStr::from_ptr(info.message).to_string_lossy().to_string() };
+            Some(message)
+        }
     }
 }
 

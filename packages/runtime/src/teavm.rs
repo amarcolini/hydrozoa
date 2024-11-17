@@ -4,7 +4,7 @@ use alloc::string::String;
 use core::str;
 
 use vexide::core::{print, println, time::Instant};
-use wasm3::{error::Trap, Function, Instance, Store, WasmArg, WasmArgs, WasmType};
+use wasm3::{Function, Instance, Store, WasmArg, WasmType};
 
 pub fn link_teavm(store: &mut Store, instance: &mut Instance) -> wasm3::error::Result<()> {
     let teavm_stringData = instance.find_function::<i32, i32>(store, "teavm_stringData")?;

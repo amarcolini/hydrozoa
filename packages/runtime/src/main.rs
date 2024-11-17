@@ -1,34 +1,40 @@
 #![no_main]
 #![no_std]
 
-use alloc::borrow::ToOwned;
-use core::{
-    ffi::{c_char, CStr},
-    ptr::addr_of,
-    time::Duration,
-};
-
-use runtime::{
-    platform,
-    teavm::{self, teamvm_main},
-};
+use anyhow::Context;
+use runtime::{platform, sdk, teavm};
 use vexide::{core::program::exit, prelude::*};
 use vexide_wasm_startup::{startup, CodeSignature, ProgramFlags, ProgramOwner, ProgramType};
+use wasm3::{Environment, Store};
 
 extern crate alloc;
 
-async fn main(_peripherals: Peripherals) {
-    let wasm_bytes = platform::read_user_program();
-
+fn main(_peripherals: Peripherals) {
     let env = wasm3::Environment::new().expect("Unable to create environment");
-    let mut store = env.create_store(4096).expect("Unable to create runtime");
+    let mut store = env.create_store(8192).expect("Unable to create runtime");
+
+    if let Err(mut err) = run(&env, &mut store) {
+        if let Some(info) = store.take_error_info() {
+            err = err.context(info);
+        }
+        println!("\nError: {:?}", err);
+    }
+}
+
+fn run(env: &Environment, store: &mut Store) -> anyhow::Result<()> {
+    let wasm_bytes = platform::read_user_program();
     let module = env
         .parse_module(wasm_bytes)
-        .expect("Unable to parse module");
+        .context("Unable to parse module")?;
 
-    let mut instance = store.instantiate(module).expect("Unable to load module");
-    teavm::link_teavm(&mut store, &mut instance).expect("Unable to link teavm");
-    teavm::teamvm_main(&mut store, &mut instance, &[]).expect("Unable to run main");
+    let mut instance = store.instantiate(module).context("Unable to load module")?;
+
+    teavm::link_teavm(&mut *store, &mut instance).context("Unable to link teavm")?;
+    sdk::link(&mut *store, &mut instance).context("Unable to link sdk")?;
+
+    teavm::teamvm_main(&mut *store, &mut instance, &[]).context("Unable to run main")?;
+
+    Ok(())
 }
 
 #[link_section = ".code_signature"]
@@ -42,6 +48,6 @@ static CODE_SIGNATURE: CodeSignature = CodeSignature::new(
 #[no_mangle]
 unsafe extern "C" fn _start() -> ! {
     startup();
-    block_on(main(Peripherals::take().unwrap()));
+    main(Peripherals::take().unwrap());
     exit();
 }

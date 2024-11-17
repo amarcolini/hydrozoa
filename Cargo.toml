@@ -21,4 +21,4 @@ vex-sdk = "0.23.0"
 [workspace.dependencies.vexide]
 git = "https://github.com/vexide/vexide.git"
 default-features = false
-features = ["core", "devices", "async", "panic"]
+features = ["core", "devices", "panic"]

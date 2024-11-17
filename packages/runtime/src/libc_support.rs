@@ -1,16 +1,21 @@
 use alloc::string::String;
 use core::{
     alloc::Layout,
-    ffi::{c_char, c_int, VaList, VaListImpl},
+    ffi::{c_int, VaList},
 };
 
 use hashbrown::HashMap;
 use vexide::core::{
-    println,
+    print,
     sync::{LazyLock, Mutex},
 };
 
 // these really get more unhinged the more you read
+
+#[no_mangle]
+unsafe extern "C" fn abort() {
+    panic!("abort");
+}
 
 #[allow(non_upper_case_globals)]
 const max_align_t: usize = 16;
@@ -85,6 +90,28 @@ extern "C" fn strcmp(s1: *const u8, s2: *const u8) -> i32 {
         }
         i += 1;
     }
+}
+
+#[no_mangle]
+unsafe extern "C" fn printf(format: *const u8, mut args: ...) -> c_int {
+    let mut s = String::new();
+    let bytes_written = printf_compat::format(
+        format,
+        args.as_va_list(),
+        printf_compat::output::fmt_write(&mut s),
+    );
+    print!("{}", s);
+    bytes_written
+}
+
+#[no_mangle]
+unsafe extern "C" fn snprintf(
+    buffer: *mut u8,
+    bufsz: usize,
+    format: *const u8,
+    mut args: ...
+) -> c_int {
+    vsnprintf(buffer, bufsz, format, args.as_va_list())
 }
 
 #[no_mangle]

@@ -2,7 +2,6 @@
 #![allow(clippy::needless_doctest_main)]
 
 use bitflags::bitflags;
-use vexide::core::println;
 
 /// Identifies the type of binary to VEXos.
 #[repr(u32)]
@@ -126,7 +125,6 @@ where
 ///
 /// - Sets up the heap allocator if necessary.
 /// - Zeroes the `.bss` section if necessary.
-/// - Prints the startup banner.
 ///
 /// # Safety
 ///
@@ -144,7 +142,4 @@ pub unsafe fn startup() {
         // Initialize the heap allocator
         vexide::core::allocator::vexos::init_heap();
     }
-
-    // Print the banner
-    // println!("multiv startup complete!");
 }

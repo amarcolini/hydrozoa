@@ -101,6 +101,9 @@ fn gen_bindings() {
                     }
                 ),
                 "-Dd_m3LogOutput=0",
+                "-DDEBUG=1",
+                "-Dd_m3EnableExceptionBreakpoint=1",
+                "-Dd_m3VerboseErrorMessages=1",
                 "-Iwasm3/source",
             ]
             .iter(),
@@ -126,6 +129,9 @@ fn main() {
 
     cfg.cpp(false)
         .define("d_m3LogOutput", Some("0"))
+        .define("DEBUG", Some("1"))
+        .define("d_m3EnableExceptionBreakpoint", Some("1"))
+        .define("d_m3VerboseErrorMessages", Some("1"))
         .warnings(false)
         .extra_warnings(false)
         .include(WASM3_SOURCE);

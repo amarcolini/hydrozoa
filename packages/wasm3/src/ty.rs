@@ -55,6 +55,20 @@ impl WasmType for u32 {
     }
 }
 
+impl Sealed for bool {}
+impl WasmArg for bool {}
+impl WasmType for bool {
+    const TYPE_INDEX: ffi::M3ValueType::Type = ffi::M3ValueType::c_m3Type_i32;
+    const SIZE_IN_SLOT_COUNT: usize = 1;
+    const SIGNATURE: u8 = b'i';
+    unsafe fn pop_from_stack(stack: *mut u64) -> Self {
+        *(stack as *const i32) != 0
+    }
+    unsafe fn push_on_stack(self, stack: *mut u64) {
+        *(stack as *mut i32) = self as i32;
+    }
+}
+
 impl Sealed for i64 {}
 impl WasmArg for i64 {}
 impl WasmType for i64 {
