@@ -1,6 +1,8 @@
-use alloc::{borrow::Cow, boxed::Box, ffi::CString, vec::Vec};
+use alloc::{borrow::Cow, boxed::Box, ffi::CString, rc::Rc, vec::Vec};
 use core::{
+    cell::RefCell,
     ffi::{c_char, c_void, CStr},
+    marker::PhantomData,
     ptr::{self, NonNull},
 };
 
@@ -73,9 +75,9 @@ impl Module {
 /// A loaded module belonging to a specific runtime. Allows for linking and looking up functions.
 // needs no drop as loaded modules will be cleaned up by the runtime
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Instance(StoredData<M3Module>);
+pub struct Instance<T>(StoredData<M3Module>, PhantomData<fn() -> T>);
 
-impl Instance {
+impl<T> Instance<T> {
     /// Links the given function to the corresponding module and function name.
     /// This allows linking a more verbose function, as it gets access to the unsafe
     /// runtime parts. For easier use the [`make_func_wrapper`] should be used to create
@@ -94,7 +96,7 @@ impl Instance {
     /// [`link_closure`]: #method.link_closure
     pub fn link_function<Args, Ret>(
         &mut self,
-        store: &mut Store,
+        store: &mut Store<T>,
         module_name: impl Into<Vec<u8>>,
         function_name: impl Into<Vec<u8>>,
         f: RawCall,
@@ -130,7 +132,7 @@ impl Instance {
     /// * the function has been found but the signature did not match
     pub fn link_closure<Args, Ret, F>(
         &mut self,
-        store: &mut Store,
+        store: &mut Store<T>,
         module_name: &str,
         function_name: &str,
         closure: F,
@@ -138,9 +140,14 @@ impl Instance {
     where
         Args: crate::WasmArgs,
         Ret: crate::WasmType,
-        F: for<'cc> FnMut(CallContext<'cc>, Args) -> core::result::Result<Ret, Trap> + 'static,
+        F: for<'cc> FnMut(CallContext<'cc, T>, Args) -> core::result::Result<Ret, Trap> + 'static,
     {
-        unsafe extern "C" fn trampoline<Args, Ret, F>(
+        struct UserData<T, F> {
+            pub closure: F,
+            pub data: Rc<RefCell<T>>,
+        }
+
+        unsafe extern "C" fn trampoline<Args, Ret, F, T>(
             runtime: ffi::IM3Runtime,
             ctx: ffi::IM3ImportContext,
             sp: *mut u64,
@@ -149,17 +156,20 @@ impl Instance {
         where
             Args: crate::WasmArgs,
             Ret: crate::WasmType,
-            F: for<'cc> FnMut(CallContext<'cc>, Args) -> core::result::Result<Ret, Trap> + 'static,
+            F: for<'cc> FnMut(CallContext<'cc, T>, Args) -> core::result::Result<Ret, Trap>
+                + 'static,
         {
             let runtime = NonNull::new(runtime)
                 .expect("wasm3 calls imported functions with non-null runtime");
             let ctx = NonNull::new(ctx)
                 .expect("wasm3 calls imported functions with non-null import context");
-            let mut closure = NonNull::new(ctx.as_ref().userdata as *mut F)
-                .expect("userdata passed to m3_LinkRawFunctionEx is non-null");
+            let user_data = NonNull::new(ctx.as_ref().userdata as *mut UserData<T, F>)
+                .expect("userdata passed to m3_LinkRawFunctionEx is non-null")
+                .as_mut();
 
             let args = Args::pop_from_stack(sp.add(Ret::SIZE_IN_SLOT_COUNT));
-            let ret = closure.as_mut()(CallContext::from_raw(runtime), args);
+            let ret =
+                (user_data.closure)(CallContext::from_raw(runtime, user_data.data.clone()), args);
             let result = match ret {
                 Ok(ret) => {
                     ret.push_on_stack(sp);
@@ -174,15 +184,19 @@ impl Instance {
         let function_name_cstr = CString::new(function_name)?;
         let signature = function_signature::<Args, Ret>();
 
-        let mut closure = Box::pin(closure);
+        let mut closure = Box::pin(UserData {
+            closure,
+            data: store.data_ref(),
+        });
+
         unsafe {
             Error::from_ffi(ffi::m3_LinkRawFunctionEx(
                 self.0.get(&store.as_context())?.as_ptr(),
                 module_name_cstr.as_ptr(),
                 function_name_cstr.as_ptr(),
                 signature.as_ptr(),
-                Some(trampoline::<Args, Ret, F>),
-                closure.as_mut().get_unchecked_mut() as *mut F as *const c_void,
+                Some(trampoline::<Args, Ret, F, T>),
+                closure.as_mut().get_unchecked_mut() as *const UserData<T, F> as *const c_void,
             ))?;
         }
         store.push_closure(closure);
@@ -200,7 +214,7 @@ impl Instance {
     /// * the function has been found but the signature did not match
     pub fn find_function<Args, Ret>(
         &self,
-        store: &Store,
+        store: &Store<T>,
         function_name: &str,
     ) -> Result<Function<Args, Ret>>
     where
@@ -209,7 +223,7 @@ impl Instance {
     {
         let function = store.find_function(function_name)?;
         match function.instance(store)? {
-            Some(instance) if instance == *self => Ok(function),
+            Some(instance) if instance == self.0.get(&store.as_context())? => Ok(function),
             _ => Err(Error::FunctionNotFound),
         }
     }
@@ -232,9 +246,9 @@ impl Instance {
     //     }
 }
 
-impl Instance {
-    pub(crate) unsafe fn from_raw(store: &StoreContext, raw: NonNull<M3Module>) -> Self {
-        Instance(StoredData::new(store, raw))
+impl<T> Instance<T> {
+    pub(crate) unsafe fn from_raw(store: &StoreContext<T>, raw: NonNull<M3Module>) -> Self {
+        Instance(StoredData::new(store, raw), PhantomData)
     }
 }
 
@@ -286,7 +300,7 @@ mod tests {
     #[test]
     fn test_link_functions() {
         let env = Environment::new().expect("env alloc failure");
-        let runtime = Store::new(&env, STACK_SIZE).expect("runtime init failure");
+        let runtime = Store::new(&env, STACK_SIZE, ()).expect("runtime init failure");
         let mut module = runtime.parse_and_instantiate(TEST_BIN).unwrap();
         module
             .link_function::<(u32, f32), f64>("env", "mul_u32_and_f32", mul_u32_and_f32_wrap)
@@ -299,7 +313,7 @@ mod tests {
     #[test]
     fn test_link_closures() {
         let env = Environment::new().expect("env alloc failure");
-        let runtime = Store::new(&env, STACK_SIZE).expect("runtime init failure");
+        let runtime = Store::new(&env, STACK_SIZE, ()).expect("runtime init failure");
         let mut module = runtime.parse_and_instantiate(TEST_BIN).unwrap();
         module
             .link_closure(

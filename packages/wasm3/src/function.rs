@@ -1,4 +1,6 @@
+use alloc::rc::Rc;
 use core::{
+    cell::{Ref, RefCell, RefMut},
     cmp::{Eq, PartialEq},
     ffi::{c_void, CStr},
     hash::{Hash, Hasher},
@@ -7,7 +9,7 @@ use core::{
     slice, str,
 };
 
-use ffi::M3Function;
+use ffi::{M3Function, M3Module};
 use snafu::ensure;
 
 use crate::{
@@ -17,15 +19,17 @@ use crate::{
 };
 
 /// Calling Context for a host function.
-pub struct CallContext<'cc> {
+pub struct CallContext<'cc, T> {
     raw: NonNull<ffi::M3Runtime>,
+    data: Rc<RefCell<T>>,
     _pd: PhantomData<fn(&'cc ()) -> &'cc ()>,
 }
 
-impl<'cc> CallContext<'cc> {
-    pub(crate) fn from_raw(raw: NonNull<ffi::M3Runtime>) -> CallContext<'cc> {
-        CallContext {
+impl<'cc, T> CallContext<'cc, T> {
+    pub(crate) fn from_raw(raw: NonNull<ffi::M3Runtime>, data: Rc<RefCell<T>>) -> Self {
+        Self {
             raw,
+            data,
             _pd: PhantomData,
         }
     }
@@ -49,17 +53,28 @@ impl<'cc> CallContext<'cc> {
         let data = unsafe { ffi::m3_GetMemory(self.raw.as_ptr(), &mut memory_size, 0) };
         unsafe { slice::from_raw_parts_mut(data, memory_size as usize) }
     }
-}
 
-impl AsContext for CallContext<'_> {
-    fn as_context(&self) -> StoreContext<'_> {
-        StoreContext::new(self.raw)
+    /// Returns a reference to the data associated with this context.
+    pub fn data(&self) -> Ref<'_, T> {
+        self.data.borrow()
+    }
+
+    /// Returns a mutable reference to the data associated with this context.
+    pub fn data_mut(&mut self) -> RefMut<'_, T> {
+        self.data.borrow_mut()
     }
 }
 
-impl AsContextMut for CallContext<'_> {
-    fn as_context_mut(&mut self) -> StoreContextMut<'_> {
-        StoreContextMut::new(self.raw)
+impl<T> AsContext for CallContext<'_, T> {
+    type Data = T;
+    fn as_context(&self) -> StoreContext<'_, T> {
+        StoreContext::new(self.raw, self.data.clone())
+    }
+}
+
+impl<T> AsContextMut for CallContext<'_, T> {
+    fn as_context_mut(&mut self) -> StoreContextMut<'_, T> {
+        StoreContextMut::new(self.raw, self.data.clone())
     }
 }
 
@@ -109,10 +124,10 @@ where
     }
 
     /// The module containing this function.
-    pub fn instance(&self, ctx: impl AsContext) -> Result<Option<Instance>> {
+    pub(crate) fn instance(&self, ctx: impl AsContext) -> Result<Option<NonNull<M3Module>>> {
         let ctx = ctx.as_context();
         let module = unsafe { ffi::m3_GetFunctionModule(self.raw.get(&ctx)?.as_ptr()) };
-        Ok(NonNull::new(module).map(|module| unsafe { Instance::from_raw(&ctx, module) }))
+        Ok(NonNull::new(module))
     }
 }
 
@@ -140,7 +155,10 @@ where
     }
 
     #[inline]
-    pub(crate) unsafe fn from_raw(store: &StoreContext, raw: NonNull<M3Function>) -> Result<Self> {
+    pub(crate) unsafe fn from_raw<T>(
+        store: &StoreContext<T>,
+        raw: NonNull<M3Function>,
+    ) -> Result<Self> {
         if !Self::validate_sig(raw) {
             return Err(Error::InvalidFunctionSignature);
         }

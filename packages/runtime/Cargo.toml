@@ -3,6 +3,9 @@ name = "runtime"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "hydrozoa"
+
 # These fields configure default behavior for uploads with `cargo v5`.
 [package.metadata.v5]
 slot = 1

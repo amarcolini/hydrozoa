@@ -39,8 +39,8 @@ impl Environment {
     ///
     /// This function will error on memory allocation failure.
     #[inline]
-    pub fn create_store(&self, stack_size: u32) -> Result<Store> {
-        Store::new(self, stack_size)
+    pub fn create_store<T>(&self, stack_size: u32, data: T) -> Result<Store<T>> {
+        Store::new(self, stack_size, data)
     }
 
     /// Parses a wasm module from raw bytes.

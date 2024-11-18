@@ -2,11 +2,12 @@ use alloc::{
     borrow::{Cow, ToOwned},
     boxed::Box,
     ffi::CString,
+    rc::Rc,
     string::{String, ToString},
     vec::Vec,
 };
 use core::{
-    cell::UnsafeCell,
+    cell::{Ref, RefCell, RefMut, UnsafeCell},
     ffi::CStr,
     hash::Hash,
     marker::PhantomData,
@@ -56,49 +57,53 @@ impl<T> Hash for StoredData<T> {
 }
 
 impl<T> StoredData<T> {
-    pub fn new(store: &StoreContext, raw: NonNull<T>) -> Self {
+    pub fn new<D>(store: &StoreContext<D>, raw: NonNull<T>) -> Self {
         Self {
             raw,
             store_id: store.id(),
         }
     }
 
-    pub fn get(&self, ctx: &StoreContext) -> Result<NonNull<T>> {
+    pub fn get<D>(&self, ctx: &StoreContext<D>) -> Result<NonNull<T>> {
         ensure!(ctx.id() == self.store_id, StoreMismatchSnafu);
         Ok(self.raw)
     }
 }
 
-pub trait AsContextMut {
-    fn as_context_mut(&mut self) -> StoreContextMut<'_>;
+pub trait AsContextMut: AsContext {
+    fn as_context_mut(&mut self) -> StoreContextMut<'_, Self::Data>;
 }
 
 impl<T: AsContextMut> AsContextMut for &mut T {
-    fn as_context_mut(&mut self) -> StoreContextMut<'_> {
+    fn as_context_mut(&mut self) -> StoreContextMut<'_, Self::Data> {
         (*self).as_context_mut()
     }
 }
 
 pub trait AsContext {
-    fn as_context(&self) -> StoreContext<'_>;
+    type Data;
+    fn as_context(&self) -> StoreContext<'_, Self::Data>;
 }
 
 impl<T: AsContext> AsContext for &T {
-    fn as_context(&self) -> StoreContext<'_> {
+    type Data = T::Data;
+    fn as_context(&self) -> StoreContext<'_, Self::Data> {
         (**self).as_context()
     }
 }
 
 impl<T: AsContext> AsContext for &mut T {
-    fn as_context(&self) -> StoreContext<'_> {
+    type Data = T::Data;
+    fn as_context(&self) -> StoreContext<'_, Self::Data> {
         (**self).as_context()
     }
 }
 
 /// A runtime context for wasm3 modules.
 #[derive(Debug)]
-pub struct Store {
+pub struct Store<T: 'static> {
     raw: NonNull<ffi::M3Runtime>,
+    data: Rc<RefCell<T>>,
     environment: Environment,
     // holds all linked closures so that they properly get disposed of when runtime drops
     closures: Vec<PinnedAnyClosure>,
@@ -106,13 +111,13 @@ pub struct Store {
     pub(crate) modules: Vec<RawModule>,
 }
 
-impl Store {
+impl<T> Store<T> {
     /// Creates a new runtime with the given stack size in slots.
     ///
     /// # Errors
     ///
     /// This function will error on memory allocation failure.
-    pub fn new(environment: &Environment, stack_size: u32) -> Result<Self> {
+    pub fn new(environment: &Environment, stack_size: u32, data: T) -> Result<Self> {
         unsafe {
             NonNull::new(ffi::m3_NewRuntime(
                 environment.as_ptr(),
@@ -123,6 +128,7 @@ impl Store {
         .ok_or_else(Error::malloc_error)
         .map(|raw| Store {
             raw,
+            data: Rc::new(RefCell::new(data)),
             environment: environment.clone(),
             closures: Vec::new(),
             modules: Vec::new(),
@@ -134,7 +140,7 @@ impl Store {
     /// # Errors
     ///
     /// This function will error if the module's environment differs from the one this runtime uses.
-    pub fn instantiate(&mut self, module: Module) -> Result<Instance> {
+    pub fn instantiate(&mut self, module: Module) -> Result<Instance<T>> {
         if &self.environment != module.environment() {
             ModuleLoadEnvMismatchSnafu.fail()
         } else {
@@ -187,6 +193,16 @@ impl Store {
         unsafe { slice::from_raw_parts_mut(data, len as usize) }
     }
 
+    /// Returns a reference to the data associated with this context.
+    pub fn data(&self) -> Ref<'_, T> {
+        self.data.borrow()
+    }
+
+    /// Returns a mutable reference to the data associated with this context.
+    pub fn data_mut(&mut self) -> RefMut<'_, T> {
+        self.data.borrow_mut()
+    }
+
     /// Returns a description of the last error that occurred in this runtime.
     pub fn take_error_info(&mut self) -> Option<String> {
         let mut info = unsafe { mem::zeroed() };
@@ -195,12 +211,16 @@ impl Store {
             None
         } else {
             let message = unsafe { CStr::from_ptr(info.message).to_string_lossy().to_string() };
-            Some(message)
+            if message.is_empty() {
+                None
+            } else {
+                Some(message)
+            }
         }
     }
 }
 
-impl Store {
+impl<T> Store<T> {
     pub(crate) fn push_closure(&mut self, closure: PinnedAnyClosure) {
         self.closures.push(closure);
     }
@@ -208,9 +228,13 @@ impl Store {
     pub(crate) fn as_ptr(&self) -> ffi::IM3Runtime {
         self.raw.as_ptr()
     }
+
+    pub(crate) fn data_ref(&self) -> Rc<RefCell<T>> {
+        self.data.clone()
+    }
 }
 
-impl Drop for Store {
+impl<T> Drop for Store<T> {
     fn drop(&mut self) {
         for mut module in mem::take(&mut self.modules) {
             module.data = Cow::Borrowed(&[]);
@@ -220,28 +244,31 @@ impl Drop for Store {
     }
 }
 
-impl AsContext for Store {
-    fn as_context(&self) -> StoreContext<'_> {
-        StoreContext::new(self.raw)
+impl<T> AsContext for Store<T> {
+    type Data = T;
+    fn as_context(&self) -> StoreContext<'_, T> {
+        StoreContext::new(self.raw, self.data.clone())
     }
 }
 
-impl AsContextMut for Store {
-    fn as_context_mut(&mut self) -> StoreContextMut<'_> {
-        StoreContextMut::new(self.raw)
+impl<T> AsContextMut for Store<T> {
+    fn as_context_mut(&mut self) -> StoreContextMut<'_, T> {
+        StoreContextMut::new(self.raw, self.data.clone())
     }
 }
 
 #[derive(Debug)]
-pub struct StoreContextMut<'a> {
+pub struct StoreContextMut<'a, T> {
     raw: NonNull<ffi::M3Runtime>,
+    data: Rc<RefCell<T>>,
     scope: PhantomData<&'a mut ()>,
 }
 
-impl StoreContextMut<'_> {
-    pub(crate) fn new(raw: NonNull<ffi::M3Runtime>) -> Self {
+impl<T> StoreContextMut<'_, T> {
+    pub(crate) fn new(raw: NonNull<ffi::M3Runtime>, data: Rc<RefCell<T>>) -> Self {
         Self {
             raw,
+            data,
             scope: PhantomData,
         }
     }
@@ -270,32 +297,45 @@ impl StoreContextMut<'_> {
         unsafe { slice::from_raw_parts_mut(data, len as usize) }
     }
 
+    /// Returns a reference to the data associated with this context.
+    pub fn data(&self) -> Ref<'_, T> {
+        self.data.borrow()
+    }
+
+    /// Returns a mutable reference to the data associated with this context.
+    pub fn data_mut(&mut self) -> RefMut<'_, T> {
+        self.data.borrow_mut()
+    }
+
     pub(crate) fn as_ptr(&self) -> ffi::IM3Runtime {
         self.raw.as_ptr()
     }
 }
 
-impl AsContext for StoreContextMut<'_> {
-    fn as_context(&self) -> StoreContext<'_> {
-        StoreContext::new(self.raw)
+impl<T> AsContext for StoreContextMut<'_, T> {
+    type Data = T;
+    fn as_context(&self) -> StoreContext<'_, T> {
+        StoreContext::new(self.raw, self.data.clone())
     }
 }
 
-impl AsContextMut for StoreContextMut<'_> {
-    fn as_context_mut(&mut self) -> StoreContextMut<'_> {
-        Self::new(self.raw)
+impl<T> AsContextMut for StoreContextMut<'_, T> {
+    fn as_context_mut(&mut self) -> StoreContextMut<'_, T> {
+        Self::new(self.raw, self.data.clone())
     }
 }
 
-pub struct StoreContext<'a> {
+pub struct StoreContext<'a, T> {
     raw: NonNull<ffi::M3Runtime>,
+    data: Rc<RefCell<T>>,
     scope: PhantomData<&'a ()>,
 }
 
-impl<'a> StoreContext<'a> {
-    pub(crate) fn new(raw: NonNull<ffi::M3Runtime>) -> Self {
+impl<'a, T> StoreContext<'a, T> {
+    pub(crate) fn new(raw: NonNull<ffi::M3Runtime>, data: Rc<RefCell<T>>) -> Self {
         Self {
             raw,
+            data,
             scope: PhantomData,
         }
     }
@@ -329,6 +369,11 @@ impl<'a> StoreContext<'a> {
         unsafe { slice::from_raw_parts(data, len as usize) }
     }
 
+    /// Returns a reference to the data associated with this context.
+    pub fn data(&self) -> Ref<'_, T> {
+        self.data.borrow()
+    }
+
     pub(crate) fn as_ptr(&self) -> ffi::IM3Runtime {
         self.raw.as_ptr()
     }
@@ -338,14 +383,15 @@ impl<'a> StoreContext<'a> {
     }
 }
 
-impl AsContext for StoreContext<'_> {
-    fn as_context(&self) -> StoreContext<'_> {
-        Self::new(self.raw)
+impl<T> AsContext for StoreContext<'_, T> {
+    type Data = T;
+    fn as_context(&self) -> StoreContext<'_, T> {
+        Self::new(self.raw, self.data.clone())
     }
 }
 
 #[test]
 fn create_and_drop_rt() {
     let env = Environment::new().expect("env alloc failure");
-    assert!(Store::new(&env, 1024 * 64).is_ok());
+    assert!(Store::new(&env, 1024 * 64, ()).is_ok());
 }
