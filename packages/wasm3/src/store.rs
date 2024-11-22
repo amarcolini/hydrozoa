@@ -1,5 +1,5 @@
 use alloc::{
-    borrow::{Cow, ToOwned},
+    borrow::Cow,
     boxed::Box,
     ffi::CString,
     rc::Rc,
@@ -7,7 +7,7 @@ use alloc::{
     vec::Vec,
 };
 use core::{
-    cell::{Ref, RefCell, RefMut, UnsafeCell},
+    cell::{Ref, RefCell, RefMut},
     ffi::CStr,
     hash::Hash,
     marker::PhantomData,
@@ -17,7 +17,6 @@ use core::{
     slice,
 };
 
-use ffi::M3ErrorInfo;
 use snafu::ensure;
 
 use crate::{

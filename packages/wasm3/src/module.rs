@@ -1,4 +1,4 @@
-use alloc::{borrow::Cow, boxed::Box, ffi::CString, rc::Rc, vec::Vec};
+use alloc::{borrow::Cow, boxed::Box, ffi::CString, rc::Rc, string::String, vec::Vec};
 use core::{
     cell::RefCell,
     ffi::{c_char, c_void, CStr},
@@ -7,6 +7,7 @@ use core::{
 };
 
 use ffi::M3Module;
+use snafu::{IntoError, ResultExt, Snafu};
 
 use crate::{
     environment::Environment,
@@ -14,6 +15,16 @@ use crate::{
     function::{CallContext, Function, RawCall},
     store::{AsContext, Store, StoreContext, StoredData},
 };
+
+/// Failed to link a WASM function.
+#[derive(Debug, Snafu)]
+#[snafu(display("Failed to link function `{name}`"))]
+pub struct ClosureLinkFailed {
+    /// The source of the error.
+    source: Error,
+    /// The name of the function that was being linked.
+    name: String,
+}
 
 #[derive(Debug)]
 pub(crate) struct RawModule {
@@ -83,7 +94,7 @@ impl<T> Instance<T> {
     /// runtime parts. For easier use the [`make_func_wrapper`] should be used to create
     /// the unsafe facade for your function that then can be passed to this.
     ///
-    /// For a simple API see [`link_closure`] which takes a closure instead.
+    /// For a simple API see [`Self::link_closure`] which takes a closure instead.
     ///
     /// # Errors
     ///
@@ -92,8 +103,6 @@ impl<T> Instance<T> {
     /// * a memory allocation failed
     /// * no function by the given name in the given module could be found
     /// * the function has been found but the signature did not match
-    ///
-    /// [`link_closure`]: #method.link_closure
     pub fn link_function<Args, Ret>(
         &mut self,
         store: &mut Store<T>,
@@ -136,7 +145,7 @@ impl<T> Instance<T> {
         module_name: &str,
         function_name: &str,
         closure: F,
-    ) -> Result<()>
+    ) -> core::result::Result<(), ClosureLinkFailed>
     where
         Args: crate::WasmArgs,
         Ret: crate::WasmType,
@@ -180,8 +189,18 @@ impl<T> Instance<T> {
             result.cast()
         }
 
-        let module_name_cstr = CString::new(module_name)?;
-        let function_name_cstr = CString::new(function_name)?;
+        let module_name_cstr =
+            CString::new(module_name)
+                .map_err(Error::from)
+                .context(ClosureLinkFailedSnafu {
+                    name: function_name,
+                })?;
+        let function_name_cstr =
+            CString::new(function_name)
+                .map_err(Error::from)
+                .context(ClosureLinkFailedSnafu {
+                    name: function_name,
+                })?;
         let signature = function_signature::<Args, Ret>();
 
         let mut closure = Box::pin(UserData {
@@ -189,16 +208,30 @@ impl<T> Instance<T> {
             data: store.data_ref(),
         });
 
-        unsafe {
+        let err = unsafe {
             Error::from_ffi(ffi::m3_LinkRawFunctionEx(
-                self.0.get(&store.as_context())?.as_ptr(),
+                self.0
+                    .get(&store.as_context())
+                    .context(ClosureLinkFailedSnafu {
+                        name: function_name,
+                    })?
+                    .as_ptr(),
                 module_name_cstr.as_ptr(),
                 function_name_cstr.as_ptr(),
                 signature.as_ptr(),
                 Some(trampoline::<Args, Ret, F, T>),
                 closure.as_mut().get_unchecked_mut() as *const UserData<T, F> as *const c_void,
-            ))?;
+            ))
+        };
+
+        if let Err(err) = err {
+            if err != Error::FunctionNotFound {
+                Err(err).context(ClosureLinkFailedSnafu {
+                    name: function_name,
+                })?;
+            }
         }
+
         store.push_closure(closure);
         Ok(())
     }

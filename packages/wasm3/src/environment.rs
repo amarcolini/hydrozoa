@@ -1,4 +1,4 @@
-use alloc::{borrow::Cow, boxed::Box, rc::Rc};
+use alloc::{borrow::Cow, rc::Rc};
 use core::ptr::NonNull;
 
 use crate::{

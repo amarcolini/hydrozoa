@@ -1,159 +1,132 @@
 #![allow(non_snake_case)]
 
-use alloc::{boxed::Box, rc::Rc, string::String, sync::Arc};
+use alloc::{ffi::CString, rc::Rc, string::String};
 use core::str;
 
-use anyhow::Context;
-use vexide::core::{print, println, sync::OnceLock, time::Instant};
+use anyhow::{Context, Result};
+use vexide::core::{print, println, time::Instant};
 use wasm3::{
-    error::Result,
     store::{AsContextMut, StoreContextMut},
-    Function, Instance, Store, WasmArg, WasmType,
+    Function, Instance, Store,
 };
 
-use crate::Data;
+use crate::{platform::flush_serial, Data};
 
-pub fn link_teavm(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::Result<()> {
-    let teavm_catchException = instance
-        .find_function::<(), i32>(store, "teavm_catchException")
-        .context("teavm_catchException")?;
-    let teavm_allocateStringArray = wrap(
-        instance
-            .find_function::<i32, i32>(store, "teavm_allocateStringArray")
-            .context("teavm_allocateStringArray")?,
-        teavm_catchException,
-    );
-    let teavm_objectArrayData = wrap(
-        instance
-            .find_function::<i32, i32>(store, "teavm_objectArrayData")
-            .context("teavm_objectArrayData")?,
-        teavm_catchException,
-    );
-    let teavm_byteArrayData = wrap(
-        instance
-            .find_function::<i32, i32>(store, "teavm_byteArrayData")
-            .context("teavm_byteArrayData")?,
-        teavm_catchException,
-    );
-    let teavm_allocateString = wrap(
-        instance
-            .find_function::<i32, i32>(store, "teavm_allocateString")
-            .context("teavm_allocateString")?,
-        teavm_catchException,
-    );
-    let teavm_stringData = wrap(
-        instance
-            .find_function::<i32, i32>(store, "teavm_stringData")
-            .context("teavm_stringData")?,
-        teavm_catchException,
-    );
-    let teavm_arrayLength = wrap(
-        instance
-            .find_function::<i32, i32>(store, "teavm_arrayLength")
-            .context("teavm_arrayLength")?,
-        teavm_catchException,
-    );
-
+pub fn link_teavm(store: &mut Store<Data>, instance: &mut Instance<Data>) -> Result<()> {
     let teavm = TeaVM {
-        catch_exception: teavm_catchException,
-        allocate_string_array: Rc::new(teavm_allocateStringArray),
-        object_array_data: Rc::new(teavm_objectArrayData),
-        byte_array_data: Rc::new(teavm_byteArrayData),
-        allocate_string: Rc::new(teavm_allocateString),
-        string_data: Rc::new(teavm_stringData),
-        array_length: Rc::new(teavm_arrayLength),
+        catch_exception: instance
+            .find_function::<(), i32>(store, "teavm_catchException")
+            .context("finding teavm interop function")?,
+        allocate_string_array: wrap(&mut *store, &mut *instance, "teavm_allocateStringArray")?,
+        object_array_data: wrap(&mut *store, &mut *instance, "teavm_objectArrayData")?,
+        byte_array_data: wrap(&mut *store, &mut *instance, "teavm_byteArrayData")?,
+        allocate_string: wrap(&mut *store, &mut *instance, "teavm_allocateString")?,
+        string_data: wrap(&mut *store, &mut *instance, "teavm_stringData")?,
+        array_length: wrap(&mut *store, &mut *instance, "teavm_arrayLength")?,
+        short_array_data: wrap(&mut *store, &mut *instance, "teavm_shortArrayData")?,
+        char_array_data: wrap(&mut *store, &mut *instance, "teavm_charArrayData")?,
+        int_array_data: wrap(&mut *store, &mut *instance, "teavm_intArrayData")?,
+        long_array_data: wrap(&mut *store, &mut *instance, "teavm_longArrayData")?,
+        float_array_data: wrap(&mut *store, &mut *instance, "teavm_floatArrayData")?,
+        double_array_data: wrap(&mut *store, &mut *instance, "teavm_doubleArrayData")?,
     };
     store.data_mut().teavm = Some(teavm);
 
-    _ = instance
-        .link_closure(
-            store,
-            "teavm",
-            "putwcharsOut",
-            |mut ctx, (chars, count): (u32, u32)| {
-                let mem = ctx.memory_mut();
-                let string =
-                    str::from_utf8(&mem[chars as usize..(chars + count) as usize]).unwrap();
-                print!("{string}");
-                Ok(())
-            },
-        )
-        .context("putwcharsOut");
+    instance.link_closure(
+        store,
+        "teavm",
+        "putwcharsOut",
+        |mut ctx, (chars, count): (u32, u32)| {
+            let mem = ctx.memory_mut();
+            let string = str::from_utf8(&mem[chars as usize..(chars + count) as usize]).unwrap();
+            print!("{string}");
+            Ok(())
+        },
+    )?;
 
-    _ = instance
-        .link_closure(
-            store,
-            "teavm",
-            "putwcharsErr",
-            |mut ctx, (chars, count): (u32, u32)| {
-                let mem = ctx.memory_mut();
-                let string =
-                    str::from_utf8(&mem[chars as usize..(chars + count) as usize]).unwrap();
-                print!("{string}");
-                Ok(())
-            },
-        )
-        .context("putwcharsErr");
+    instance.link_closure(
+        store,
+        "teavm",
+        "putwcharsErr",
+        |mut ctx, (chars, count): (u32, u32)| {
+            let mem = ctx.memory_mut();
+            let string = str::from_utf8(&mem[chars as usize..(chars + count) as usize]).unwrap();
+            print!("{string}");
+            Ok(())
+        },
+    )?;
 
     let epoch = Instant::now();
 
-    _ = instance
-        .link_closure(store, "teavm", "currentTimeMillis", move |_ctx, ()| {
-            let secs = epoch.elapsed().as_secs_f64();
-            Ok(secs * 1000.0)
-        })
-        .context("currentTimeMillis");
+    instance.link_closure(store, "teavm", "currentTimeMillis", move |_ctx, ()| {
+        let secs = epoch.elapsed().as_secs_f64();
+        Ok(secs * 1000.0)
+    })?;
 
-    _ = instance
-        .link_closure(store, "teavm", "logString", move |mut ctx, string: i32| {
-            let teavm = ctx.data().teavm.clone().unwrap();
-            let array_ptr = (teavm.string_data)(ctx.as_context_mut(), string).unwrap() as usize;
-            let len =
-                (teavm.array_length)(ctx.as_context_mut(), array_ptr as i32).unwrap() as usize;
-            let bytes = len * size_of::<u16>();
+    instance.link_closure(store, "teavm", "logString", move |mut ctx, string: i32| {
+        let string = get_string(&mut ctx, string);
 
-            let memory = ctx.memory();
-            let array = &memory[array_ptr..array_ptr + bytes];
-            let string = String::from_utf16_lossy(bytemuck::cast_slice(array));
+        print!("{string}");
 
-            print!("{string}");
+        Ok(())
+    })?;
 
-            Ok(())
-        })
-        .context("logString");
+    instance.link_closure(store, "teavm", "logInt", move |_ctx, int: i32| {
+        print!("{int}");
+        Ok(())
+    })?;
 
-    _ = instance
-        .link_closure(store, "teavm", "logInt", move |_ctx, int: i32| {
-            print!("{int}");
-            Ok(())
-        })
-        .context("logInt");
-
-    _ = instance
-        .link_closure(store, "teavm", "logOutOfMemory", move |_ctx, ()| {
-            println!("Out of memory");
-            Ok(())
-        })
-        .context("logOutOfMemory");
+    instance.link_closure(store, "teavm", "logOutOfMemory", move |_ctx, ()| {
+        println!("Out of memory");
+        Ok(())
+    })?;
 
     Ok(())
 }
 
-fn wrap<T: WasmArg, R: WasmType>(
-    func: Function<T, R>,
-    catch: Function<(), i32>,
-) -> impl Fn(StoreContextMut<Data>, T) -> Result<R> {
-    move |mut ctx, args| {
+/// Copies a UTF16 string out of the JVM's memory and into a Rust [`String`].
+pub fn get_string(ctx: &mut wasm3::CallContext<Data>, string: i32) -> String {
+    let teavm = ctx.data().teavm.clone().unwrap();
+
+    // get pointer & length of the utf16 buffer java stores strings in
+    let array = (teavm.string_data)(ctx.as_context_mut(), string).unwrap();
+    let len = (teavm.array_length)(ctx.as_context_mut(), array).unwrap() as usize;
+    let bytes = len * size_of::<u16>();
+    let array_addr = (teavm.char_array_data)(ctx.as_context_mut(), array).unwrap() as usize;
+
+    let memory = ctx.memory();
+    let array = &memory[array_addr..array_addr + bytes];
+    String::from_utf16_lossy(bytemuck::cast_slice(array))
+}
+
+/// Copies a UTF16 string out of the JVM's memory and into a Rust [`CString`].
+pub fn get_cstring(ctx: &mut wasm3::CallContext<Data>, string: i32) -> CString {
+    CString::new(get_string(ctx, string)).unwrap()
+}
+
+type TeaVMDataGetter = dyn Fn(StoreContextMut<Data>, i32) -> Result<i32>;
+
+fn wrap(
+    store: &mut Store<Data>,
+    instance: &mut Instance<Data>,
+    func: &str,
+) -> Result<Rc<TeaVMDataGetter>> {
+    let teavm_catchException = instance
+        .find_function::<(), i32>(store, "teavm_catchException")
+        .context("finding teavm interop function")?;
+    let func = instance
+        .find_function::<i32, i32>(store, func)
+        .context("finding teavm interop function")?;
+
+    Ok(Rc::new(move |mut ctx, args| {
         let result = func.call(&mut ctx, args)?;
-        let exception = catch.call(&mut ctx)?;
+        let exception = teavm_catchException.call(&mut ctx)?;
         if exception != 0 {
             panic!("Java code threw an exception");
         }
         Ok(result)
-    }
+    }))
 }
-
-type TeaVMDataGetter = dyn Fn(StoreContextMut<Data>, i32) -> Result<i32>;
 
 #[derive(Clone)]
 pub struct TeaVM {
@@ -161,6 +134,12 @@ pub struct TeaVM {
     pub allocate_string_array: Rc<TeaVMDataGetter>,
     pub object_array_data: Rc<TeaVMDataGetter>,
     pub byte_array_data: Rc<TeaVMDataGetter>,
+    pub short_array_data: Rc<TeaVMDataGetter>,
+    pub char_array_data: Rc<TeaVMDataGetter>,
+    pub int_array_data: Rc<TeaVMDataGetter>,
+    pub long_array_data: Rc<TeaVMDataGetter>,
+    pub float_array_data: Rc<TeaVMDataGetter>,
+    pub double_array_data: Rc<TeaVMDataGetter>,
     pub allocate_string: Rc<TeaVMDataGetter>,
     pub string_data: Rc<TeaVMDataGetter>,
     pub array_length: Rc<TeaVMDataGetter>,
@@ -197,6 +176,8 @@ pub fn teamvm_main(
             bytemuck::cast_slice_mut(&mut memory[java_args..java_args + args_bytes]);
         args_data[i] = java_arg;
     }
+
+    flush_serial();
 
     let start = instance
         .find_function::<i32, ()>(store, "start")

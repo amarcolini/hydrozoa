@@ -2,22 +2,21 @@
 
 use core::ffi::c_double;
 
-use anyhow::Context;
 use vex_sdk::{
     V5MotorBrakeMode, V5MotorControlMode, V5MotorEncoderUnits, V5MotorGearset, V5_ControllerId,
-    V5_ControllerIndex, V5_Device, V5_DeviceT, V5_DeviceType,
+    V5_ControllerIndex, V5_DeviceType,
 };
 use wasm3::{store::AsContextMut, Instance, Store};
 
-use crate::{teavm::TeaVM, Data};
+use crate::{teavm::get_cstring, Data};
 
 macro_rules! link {
     ($instance:ident, $store:ident, mod $module:literal {
-        $( fn $name:ident ( $($arg:ident: $arg_ty:ty $(as $wrapper:expr)? $(,)?),* )  $(-> $ret:ty $(, in .$field:tt)?)? );* $(;)?
+        $( fn $name:ident ( $($arg:ident: $arg_ty:ty $(as $wrapper:expr)? $(,)?),* )  $(-> $ret:ty $(, in .$field:tt)?)?; )*
     }) => {
         {
             $(
-                _ = $instance.link_closure(
+                $instance.link_closure(
                     &mut *$store,
                     $module,
                     stringify!($name),
@@ -33,7 +32,35 @@ macro_rules! link {
                         }
                         Ok(inner($($arg),*))
                     }
-                ).context(concat!("Unable to link ", $module, "::", stringify!($name), " function"));
+                )?;
+            )*
+        }
+    };
+}
+
+macro_rules! printf_style {
+    ($instance:ident, $store:ident, mod $module:literal {
+        $( fn $name:ident ( $($arg:ident: $arg_ty:ty,)* @printf@); )*
+    }) => {
+        {
+            $(
+                $instance.link_closure(
+                    &mut *$store,
+                    $module,
+                    stringify!($name),
+                    #[allow(unused_parens)]
+                    |mut ctx, ($($arg,)* string): ($($arg_ty,)* i32)| {
+                        let string = get_cstring(&mut ctx, string);
+                        unsafe {
+                            vex_sdk::$name(
+                                $($arg,)*
+                                c"%s".as_ptr(),
+                                string.as_ptr(),
+                            );
+                        }
+                        Ok(())
+                    }
+                )?;
             )*
         }
     };
@@ -70,15 +97,6 @@ pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::R
         fn vexDisplayClipRegionSetWithIndex(index: i32, x1: i32, y1: i32, x2: i32, y2: i32);
         // fn vexImageBmpRead(ibuf: *const u8, oBuf: *mut v5_image, maxw: u32, maxh: u32) -> u32;
         // fn vexImagePngRead(ibuf: *const u8, oBuf: *mut v5_image, maxw: u32, maxh: u32, ibuflen: u32) -> u32;
-
-        // fn vexDisplayVPrintf(xpos: i32, ypos: i32, bOpaque: i32, format: *const c_char, args: VaList);
-        // fn vexDisplayVString(nLineNumber: i32, format: *const c_char, args: VaList);
-        // fn vexDisplayVStringAt(xpos: i32, ypos: i32, format: *const c_char, args: VaList);
-        // fn vexDisplayVBigString(nLineNumber: i32, format: *const c_char, args: VaList);
-        // fn vexDisplayVBigStringAt(xpos: i32, ypos: i32, format: *const c_char, args: VaList);
-        // fn vexDisplayVSmallStringAt(xpos: i32, ypos: i32, format: *const c_char, args: VaList);
-        // fn vexDisplayVCenteredString(nLineNumber: i32, format: *const c_char, args: VaList);
-        // fn vexDisplayVBigCenteredString(nLineNumber: i32, format: *const c_char, args: VaList);
 
         // Controller
         fn vexControllerGet(id: u32 as V5_ControllerId, index: u32 as V5_ControllerIndex) -> i32;
@@ -140,26 +158,55 @@ pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::R
         fn vexCompetitionStatus() -> u32;
     });
 
-    _ = instance
-        .link_closure(
-            &mut *store,
-            "vex",
-            "vexDeviceGetStatus",
-            |mut ctx, devices: i32| {
-                let teavm = ctx.data().teavm.clone().unwrap();
-                let array_ptr = (teavm.byte_array_data)(ctx.as_context_mut(), devices).unwrap();
-                let memory = ctx.memory_mut();
-                let devices = &mut memory
-                    [array_ptr as usize..(array_ptr as usize + vex_sdk::V5_MAX_DEVICE_PORTS)];
+    printf_style!(instance, store, mod "vex" {
+        fn vexDisplayPrintf(xpos: i32, ypos: i32, bOpaque: i32, @printf@);
+        fn vexDisplayString(nLineNumber: i32, @printf@);
+        fn vexDisplayStringAt(xpos: i32, ypos: i32, @printf@);
+        fn vexDisplayBigString(nLineNumber: i32, @printf@);
+        fn vexDisplayBigStringAt(xpos: i32, ypos: i32, @printf@);
+        fn vexDisplaySmallStringAt(xpos: i32, ypos: i32, @printf@);
+        fn vexDisplayCenteredString(nLineNumber: i32, @printf@);
+        fn vexDisplayBigCenteredString(nLineNumber: i32, @printf@);
+    });
 
-                let devices = unsafe {
-                    // SAFETY: V5_DeviceType is a repr(transparent) struct holding a u8
-                    core::mem::transmute::<*mut u8, *mut V5_DeviceType>(devices.as_mut_ptr())
-                };
-                Ok(unsafe { vex_sdk::vexDeviceGetStatus(devices) })
-            },
-        )
-        .context("Unable to link vex::vexDeviceGetStatus function");
+    instance.link_closure(
+        &mut *store,
+        "vex",
+        "vexDeviceGetStatus",
+        |mut ctx, devices| {
+            let teavm = ctx.data().teavm.clone().unwrap();
+            let array_ptr = (teavm.byte_array_data)(ctx.as_context_mut(), devices).unwrap();
+            let memory = ctx.memory_mut();
+            let devices = &mut memory
+                [array_ptr as usize..(array_ptr as usize + vex_sdk::V5_MAX_DEVICE_PORTS)];
+
+            let devices = unsafe {
+                // SAFETY: V5_DeviceType is a repr(transparent) struct holding a u8
+                core::mem::transmute::<*mut u8, *mut V5_DeviceType>(devices.as_mut_ptr())
+            };
+            Ok(unsafe { vex_sdk::vexDeviceGetStatus(devices) })
+        },
+    )?;
+
+    instance.link_closure(
+        &mut *store,
+        "vex",
+        "vexDisplayStringWidthGet",
+        |mut ctx, string: i32| {
+            let string = get_cstring(&mut ctx, string);
+            Ok(unsafe { vex_sdk::vexDisplayStringWidthGet(string.as_ptr()) })
+        },
+    )?;
+
+    instance.link_closure(
+        &mut *store,
+        "vex",
+        "vexDisplayStringHeightGet",
+        |mut ctx, string: i32| {
+            let string = get_cstring(&mut ctx, string);
+            Ok(unsafe { vex_sdk::vexDisplayStringHeightGet(string.as_ptr()) })
+        },
+    )?;
 
     Ok(())
 }

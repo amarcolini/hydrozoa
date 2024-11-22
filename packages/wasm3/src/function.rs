@@ -5,17 +5,16 @@ use core::{
     ffi::{c_void, CStr},
     hash::{Hash, Hasher},
     marker::PhantomData,
-    ptr::{self, NonNull},
+    ptr::NonNull,
     slice, str,
 };
 
 use ffi::{M3Function, M3Module};
-use snafu::ensure;
 
 use crate::{
-    error::{Error, Result, StoreMismatchSnafu},
-    store::{AsContext, AsContextMut, Store, StoreContext, StoreContextMut, StoredData},
-    Instance, WasmArg, WasmArgs, WasmType,
+    error::{Error, Result},
+    store::{AsContext, AsContextMut, StoreContext, StoreContextMut, StoredData},
+    WasmArg, WasmArgs, WasmType,
 };
 
 /// Calling Context for a host function.

@@ -1,5 +1,4 @@
-use wasm3::Environment;
-use wasm3::Instance;
+use wasm3::{Environment, Instance};
 
 #[cfg(feature = "wasi")]
 fn main() {
