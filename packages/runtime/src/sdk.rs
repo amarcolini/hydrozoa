@@ -86,11 +86,8 @@ pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::R
         fn vexDisplayCircleClear(xc: i32, yc: i32, radius: i32);
         fn vexDisplayCircleFill(xc: i32, yc: i32, radius: i32);
         fn vexDisplayTextSize(n: u32, d: u32);
-        // fn vexDisplayFontNamedSet(pFontName: *const c_char);
         fn vexDisplayForegroundColorGet() -> u32;
         fn vexDisplayBackgroundColorGet() -> u32;
-        // fn vexDisplayStringWidthGet(pString: *const c_char) -> i32;
-        // fn vexDisplayStringHeightGet(pString: *const c_char) -> i32;
         fn vexDisplayClipRegionSet(x1: i32, y1: i32, x2: i32, y2: i32);
         fn vexDisplayRender(bVsyncWait: bool, bRunScheduler: bool);
         fn vexDisplayDoubleBufferDisable();
@@ -205,6 +202,17 @@ pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::R
         |mut ctx, string: i32| {
             let string = get_cstring(&mut ctx, string);
             Ok(unsafe { vex_sdk::vexDisplayStringHeightGet(string.as_ptr()) })
+        },
+    )?;
+
+    instance.link_closure(
+        &mut *store,
+        "vex",
+        "vexDisplayFontNamedSet",
+        |mut ctx, string: i32| {
+            let string = get_cstring(&mut ctx, string);
+            unsafe { vex_sdk::vexDisplayFontNamedSet(string.as_ptr()) };
+            Ok(())
         },
     )?;
 
