@@ -150,6 +150,21 @@ pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::R
         // fn vexDeviceMotorVelocityPidSet(device: u32, pid: *mut V5_DeviceMotorPid);
         fn vexDeviceMotorExternalProfileSet(device: u32, position: c_double, velocity: i32);
 
+        // Serial
+        fn vexSerialWriteChar(channel: u32, c: u32) -> i32;
+        fn vexSerialReadChar(channel: u32) -> i32;
+        fn vexSerialPeekChar(channel: u32) -> i32;
+        fn vexSerialWriteFree(channel: u32) -> i32;
+
+        // System
+        fn vexSystemTimeGet() -> u32;
+        fn vexSystemExitRequest();
+        fn vexSystemHighResTimeGet() -> u64;
+        fn vexSystemPowerupTimeGet() -> u64;
+        fn vexSystemLinkAddrGet() -> u32;
+        fn vexSystemVersion() -> u32;
+        fn vexStdlibVersion() -> u32;
+
         // Misc
         fn vexTasksRun();
         fn vexCompetitionStatus() -> u32;
