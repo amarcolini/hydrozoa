@@ -18,6 +18,12 @@ This project also depends on `cargo-v5`, which you can install by running this c
 cargo install cargo-v5
 ```
 
+Clone the repository with the `--recurse-submodules` flag to ensure you have its submodules as well:
+
+```shell
+git clone https://github.com/vexide/hydrozoa.git --recurse-submodules
+```
+
 Then, run this command to build the project:
 
 ```shell
