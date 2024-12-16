@@ -1,14 +1,16 @@
 #![allow(non_snake_case)]
 
+use alloc::{borrow::ToOwned, string::ToString};
 use core::ffi::c_double;
 
 use vex_sdk::{
     V5MotorBrakeMode, V5MotorControlMode, V5MotorEncoderUnits, V5MotorGearset, V5_ControllerId,
     V5_ControllerIndex, V5_DeviceType,
 };
-use wasm3::{store::AsContextMut, Instance, Store};
+use vexide::{core::println, prelude::Display};
+use wasm3::{error::Trap, store::AsContextMut, Instance, Store};
 
-use crate::{teavm::get_cstring, Data};
+use crate::{platform::draw_error, teavm::get_cstring, Data};
 
 macro_rules! link {
     ($instance:ident, $store:ident, mod $module:literal {
@@ -67,6 +69,26 @@ macro_rules! printf_style {
 }
 
 pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::Result<()> {
+    instance.link_closure(
+        &mut *store,
+        "hydrozoa",
+        "panic",
+        |mut ctx, string: i32| -> Result<(), Trap> {
+            let string = get_cstring(&mut ctx, string);
+            let msg = string.to_string_lossy();
+
+            let mut display = unsafe { Display::new() };
+
+            draw_error(&mut display, msg.as_ref());
+
+            loop {
+                unsafe {
+                    vex_sdk::vexTasksRun();
+                }
+            }
+        },
+    )?;
+
     link!(instance, store, mod "vex" {
         // Display
         fn vexDisplayForegroundColor(col: u32);

@@ -19,6 +19,6 @@ lto = true
 vex-sdk = "0.23.0"
 
 [workspace.dependencies.vexide]
-version = "0.5.0-rc.2"
+version = "0.5.1"
 default-features = false
-features = ["core", "devices", "panic"]
+features = ["core", "devices", "panic", "display_panics"]

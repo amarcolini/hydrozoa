@@ -140,6 +140,6 @@ pub unsafe fn startup() {
         );
 
         // Initialize the heap allocator
-        vexide::core::allocator::vexos::init_heap();
+        vexide::core::allocator::init_heap();
     }
 }
