@@ -1,14 +1,12 @@
 use alloc::string::String;
 use core::{
     alloc::Layout,
+    cell::{LazyCell, RefCell},
     ffi::{c_int, VaList},
 };
 
 use hashbrown::HashMap;
-use vexide::core::{
-    print,
-    sync::{LazyLock, Mutex},
-};
+use vexide::core::{print, sync::Mutex};
 
 // these really get more unhinged the more you read
 
@@ -20,7 +18,8 @@ unsafe extern "C" fn abort() {
 #[allow(non_upper_case_globals)]
 const max_align_t: usize = 16;
 
-static LAYOUTS: LazyLock<Mutex<HashMap<usize, Layout>>> = LazyLock::new(Mutex::default);
+static LAYOUTS: Mutex<LazyCell<RefCell<HashMap<usize, Layout>>>> =
+    Mutex::new(LazyCell::new(|| RefCell::new(HashMap::new())));
 
 #[no_mangle]
 extern "C" fn calloc(nmemb: usize, size: usize) -> *mut u8 {
@@ -34,8 +33,8 @@ extern "C" fn calloc(nmemb: usize, size: usize) -> *mut u8 {
         return ptr;
     }
 
-    let mut layouts = LAYOUTS.try_lock().unwrap();
-    layouts.insert(ptr as usize, layout);
+    let layouts = LAYOUTS.try_lock().unwrap();
+    layouts.borrow_mut().insert(ptr as usize, layout);
 
     ptr
 }
@@ -45,8 +44,9 @@ extern "C" fn free(ptr: *mut u8) {
     if ptr.is_null() {
         return;
     }
-    let mut layouts = LAYOUTS.try_lock().unwrap();
+    let layouts = LAYOUTS.try_lock().unwrap();
     let layout = layouts
+        .borrow_mut()
         .remove(&(ptr as usize))
         .expect("double free detected");
     unsafe { alloc::alloc::dealloc(ptr, layout) };
@@ -58,8 +58,9 @@ extern "C" fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
         return calloc(1, size);
     }
 
-    let mut layouts = LAYOUTS.try_lock().unwrap();
+    let layouts = LAYOUTS.try_lock().unwrap();
     let layout = layouts
+        .borrow_mut()
         .remove(&(ptr as usize))
         .expect("realloc on unknown pointer");
     let new_layout = Layout::from_size_align(size, layout.align()).unwrap();
@@ -68,7 +69,7 @@ extern "C" fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
         return new_ptr;
     }
 
-    layouts.insert(new_ptr as usize, new_layout);
+    layouts.borrow_mut().insert(new_ptr as usize, new_layout);
 
     new_ptr
 }

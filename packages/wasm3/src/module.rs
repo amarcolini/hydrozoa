@@ -130,7 +130,7 @@ impl<T> Instance<T> {
     }
 
     /// Links the given closure to the corresponding module and function name.
-    /// This boxes the closure and therefor requires a heap allocation.
+    /// This boxes the closure and therefore requires a heap allocation.
     ///
     /// # Errors
     ///

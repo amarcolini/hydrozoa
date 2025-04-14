@@ -14,10 +14,10 @@ pub trait WasmType: Sized + Sealed {
     unsafe fn push_on_stack(self, stack: *mut u64);
 }
 
-/// Tait implemented by types that can be passed to wasm.
+/// Trait implemented by types that can be passed to wasm.
 pub trait WasmArg: WasmType {}
 
-/// Helper tait implemented by tuples to emulate "variadic generics".
+/// Helper trait implemented by tuples to emulate "variadic generics".
 #[allow(private_bounds)]
 pub trait WasmArgs: Sealed {
     unsafe fn push_on_stack(self, stack: *mut u64);

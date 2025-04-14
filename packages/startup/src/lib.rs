@@ -2,6 +2,7 @@
 #![allow(clippy::needless_doctest_main)]
 
 use bitflags::bitflags;
+use core::ptr::addr_of_mut;
 
 /// Identifies the type of binary to VEXos.
 #[repr(u32)]
@@ -121,6 +122,11 @@ where
     }
 }
 
+unsafe extern "C" {
+    static mut __heap_start: u8;
+    static mut __heap_end: u8;
+}
+
 /// Startup Routine
 ///
 /// - Sets up the heap allocator if necessary.
@@ -140,6 +146,6 @@ pub unsafe fn startup() {
         );
 
         // Initialize the heap allocator
-        vexide::core::allocator::init_heap();
+        vexide::core::allocator::claim(addr_of_mut!(__heap_start), addr_of_mut!(__heap_end));
     }
 }
