@@ -3,7 +3,7 @@
 
 use anyhow::Context;
 use runtime::{platform, sdk, teavm, Data};
-use vexide::{core::program::exit, prelude::*};
+use vexide::{program::exit, prelude::*};
 use vexide_wasm_startup::{startup, CodeSignature, ProgramFlags, ProgramOwner, ProgramType};
 use wasm3::{Environment, Store};
 

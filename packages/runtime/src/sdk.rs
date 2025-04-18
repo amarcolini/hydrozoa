@@ -8,8 +8,6 @@ use wasm3::{error::Trap, store::AsContextMut, Instance, Store};
 
 use crate::{platform::draw_error, teavm::get_cstring, Data};
 
-extern crate alloc;
-
 macro_rules! link {
     ($instance:ident, $store:ident, mod $module:literal {
         $( fn $name:ident ( $($arg:ident: $arg_ty:ty $(as $wrapper:expr)? $(,)?),* )  $(-> $ret:ty $(, in .$field:tt)?)?; )*
@@ -74,7 +72,6 @@ pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::R
         |mut ctx, string: i32| -> Result<(), Trap> {
             let string = get_cstring(&mut ctx, string);
             let msg = string.to_string_lossy();
-            println!("{}", msg);
 
             let mut display = unsafe { Display::new() };
 
@@ -96,40 +93,9 @@ pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::R
             let teavm = ctx.data().teavm.clone().unwrap();
             let array_ptr = (teavm.byte_array_data)(ctx.as_context_mut(), address).unwrap();
             let memory = ctx.memory_mut();
-            let slice = &mut memory[array_ptr as usize..(array_ptr as usize + size as usize)];
-
-            let magic = unsafe {
-                // SAFETY: V5_DeviceType is a repr(transparent) struct holding a u8
-                core::mem::transmute::<*mut u8, *mut V5_DeviceType>(slice.as_mut_ptr())
-            };
-            Ok(magic as i32)
+            Ok(memory.as_mut_ptr().wrapping_offset(array_ptr) as i32)
         },
     )?;
-
-    // instance.link_closure(&mut *store, "hydrozoa", "alloc", |_ctx, size: i32| {
-    //     let layout = Layout::from_size_align(size as usize, 1).unwrap();
-    //     let address: i32;
-    //     unsafe {
-    //         address = alloc::alloc::alloc(layout) as i32;
-    //     }
-    //     Ok(address)
-    // })?;
-
-    // instance.link_closure(
-    //     &mut *store,
-    //     "hydrozoa",
-    //     "readByte",
-    //     |_ctx, (address, offset): (i32, i32)| {
-    //         let pointer: *const u8;
-    //         let byte: u8;
-    //         unsafe {
-    //             pointer = &*(address as *const u8);
-    //             let offsetPointer = pointer.byte_offset(offset as isize);
-    //             byte = *offsetPointer;
-    //         }
-    //         Ok(byte as i32)
-    //     },
-    // )?;
 
     link!(instance, store, mod "vex" {
         // System
