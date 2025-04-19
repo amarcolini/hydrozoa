@@ -3,7 +3,7 @@
 use core::ffi::c_double;
 
 use vex_sdk::*;
-use vexide::{core::println, prelude::Display};
+use vexide::prelude::Display;
 use wasm3::{error::Trap, store::AsContextMut, Instance, Store};
 
 use crate::{platform::draw_error, teavm::get_cstring, Data};
@@ -89,11 +89,11 @@ pub fn link(store: &mut Store<Data>, instance: &mut Instance<Data>) -> anyhow::R
         &mut *store,
         "hydrozoa",
         "getByteArrayPointer",
-        |mut ctx, (address, size): (i32, i32)| {
+        |mut ctx, address: i32| {
             let teavm = ctx.data().teavm.clone().unwrap();
             let array_ptr = (teavm.byte_array_data)(ctx.as_context_mut(), address).unwrap();
             let memory = ctx.memory_mut();
-            Ok(memory.as_mut_ptr().wrapping_offset(array_ptr) as i32)
+            Ok(memory.as_mut_ptr().wrapping_offset(array_ptr as isize) as i32)
         },
     )?;
 

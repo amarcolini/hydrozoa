@@ -21,4 +21,4 @@ vex-sdk = "0.26.0"
 [workspace.dependencies.vexide]
 version = "0.7.0"
 default-features = false
-features = ["allocator", "core", "devices", "panic", "display_panics"]
+features = ["allocator", "devices", "panic", "display_panics"]

@@ -6,7 +6,7 @@ use core::{
 };
 
 use hashbrown::HashMap;
-use vexide::core::{print, sync::Mutex};
+use vexide::{io::print, sync::Mutex};
 
 // these really get more unhinged the more you read
 

@@ -4,7 +4,7 @@ use alloc::{ffi::CString, rc::Rc, string::String};
 use core::str;
 
 use anyhow::{Context, Result};
-use vexide::core::{print, println, time::Instant};
+use vexide::{io::print, io::println, time::Instant};
 use wasm3::{
     store::{AsContextMut, StoreContextMut},
     Function, Instance, Store,
@@ -61,6 +61,11 @@ pub fn link_teavm(store: &mut Store<Data>, instance: &mut Instance<Data>) -> Res
     instance.link_closure(store, "teavm", "currentTimeMillis", move |_ctx, ()| {
         let secs = epoch.elapsed().as_secs_f64();
         Ok(secs * 1000.0)
+    })?;
+
+    instance.link_closure(store, "teavm", "nanoTime", move |_ctx, ()| {
+        let nanos = epoch.elapsed().as_nanos() as f64 / 1000000.0;
+        Ok(nanos)
     })?;
 
     instance.link_closure(store, "teavm", "logString", move |mut ctx, string: i32| {
