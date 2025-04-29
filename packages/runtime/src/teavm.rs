@@ -4,7 +4,11 @@ use alloc::{ffi::CString, rc::Rc, string::String};
 use core::str;
 
 use anyhow::{Context, Result};
-use vexide::{io::print, io::println, time::Instant};
+use vexide::{
+    float::Float,
+    io::{print, println},
+    time::Instant,
+};
 use wasm3::{
     store::{AsContextMut, StoreContextMut},
     Function, Instance, Store,
@@ -67,6 +71,33 @@ pub fn link_teavm(store: &mut Store<Data>, instance: &mut Instance<Data>) -> Res
         let nanos = epoch.elapsed().as_nanos() as f64 / 1000000.0;
         Ok(nanos)
     })?;
+
+    instance.link_closure(store, "teavmMath", "sin", move |_ctx, a: f64| Ok(a.sin()))?;
+    instance.link_closure(store, "teavmMath", "cos", move |_ctx, a: f64| Ok(a.cos()))?;
+    instance.link_closure(store, "teavmMath", "tan", move |_ctx, a: f64| Ok(a.tan()))?;
+    instance.link_closure(store, "teavmMath", "asin", move |_ctx, a: f64| Ok(a.asin()))?;
+    instance.link_closure(store, "teavmMath", "acos", move |_ctx, a: f64| Ok(a.acos()))?;
+    instance.link_closure(store, "teavmMath", "atan", move |_ctx, a: f64| Ok(a.atan()))?;
+    instance.link_closure(store, "teavmMath", "exp", move |_ctx, a: f64| Ok(a.exp()))?;
+    instance.link_closure(store, "teavmMath", "log", move |_ctx, a: f64| Ok(a.ln()))?;
+    instance.link_closure(store, "teavmMath", "sqrt", move |_ctx, a: f64| Ok(a.sqrt()))?;
+    instance.link_closure(store, "teavmMath", "ceil", move |_ctx, a: f64| Ok(a.ceil()))?;
+    instance.link_closure(store, "teavmMath", "floor", move |_ctx, a: f64| {
+        Ok(a.floor())
+    })?;
+    instance.link_closure(
+        store,
+        "teavmMath",
+        "pow",
+        move |_ctx, (x, y): (f64, f64)| Ok(x.powf(y)),
+    )?;
+    instance.link_closure(
+        store,
+        "teavmMath",
+        "atan2",
+        move |_ctx, (y, x): (f64, f64)| Ok(y.atan2(x)),
+    )?;
+
 
     instance.link_closure(store, "teavm", "logString", move |mut ctx, string: i32| {
         let string = get_string(&mut ctx, string);
